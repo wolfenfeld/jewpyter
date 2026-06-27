@@ -33,7 +33,17 @@ EXPORT_PNG = True
 def save(fig, name):
     os.makedirs(CHARTS_DIR, exist_ok=True)
     html_path = os.path.join(CHARTS_DIR, f"{name}.html")
+    fig.update_layout(height=480)
     fig.write_html(html_path, include_plotlyjs="cdn", full_html=True)
+    # Fix body height so the chart renders correctly inside an iframe
+    with open(html_path, "r") as f:
+        html = f.read()
+    html = html.replace(
+        "<head>",
+        "<head><style>html,body{height:100%;margin:0;padding:0;overflow:hidden;}</style>"
+    )
+    with open(html_path, "w") as f:
+        f.write(html)
     print(f"  ✓  {html_path}")
 
     if EXPORT_PNG:
