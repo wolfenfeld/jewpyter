@@ -69,7 +69,7 @@ fig.update_traces(marker=dict(size=5, opacity=0.8))
 fig.show()
 ```
 
-<iframe frameborder="0" scrolling="no" src="//plot.ly/~wolfenfeld/6.embed?autosize=true&link=false&modebar=false&width=100%&height=100%" style="border:none;min-width:450px;min-height:450px;width:100%;height:100%"></iframe>
+<iframe src="/assets/charts/digits-tsne-30.html" style="width:100%;height:500px;border:none;"></iframe>
 
 The Queen gasped. Ten beautiful islands floated in the void — one for each digit. The tangled mass had become a constellation.
 
@@ -102,7 +102,7 @@ fig.for_each_annotation(lambda a: a.update(text=a.text.split("=")[-1]))
 fig.show()
 ```
 
-<iframe frameborder="0" scrolling="no" src="//plot.ly/~wolfenfeld/7.embed?autosize=true&link=false&modebar=false&width=100%&height=100%" style="border:none;min-width:450px;min-height:450px;width:100%;height:100%"></iframe>
+<iframe src="/assets/charts/digits-tsne-perplexity-comparison.html" style="width:100%;height:500px;border:none;"></iframe>
 
 Three maps. Three entirely different stories. All of them are technically correct t-SNE outputs.
 
@@ -145,7 +145,7 @@ fig.update_traces(marker=dict(size=5, opacity=0.8))
 fig.show()
 ```
 
-<iframe frameborder="0" scrolling="no" src="//plot.ly/~wolfenfeld/8.embed?autosize=true&link=false&modebar=false&width=100%&height=100%" style="border:none;min-width:450px;min-height:450px;width:100%;height:100%"></iframe>
+<iframe src="/assets/charts/digits-umap.html" style="width:100%;height:500px;border:none;"></iframe>
 
 Beautiful islands again — but now with more consistent positioning between runs, and a global layout that roughly reflects how similar the digits are to each other. The `4`s and `9`s live nearby. The `0`s and `1`s are far apart.
 
@@ -175,7 +175,7 @@ fig.for_each_annotation(lambda a: a.update(text=a.text.split("=")[-1]))
 fig.show()
 ```
 
-<iframe frameborder="0" scrolling="no" src="//plot.ly/~wolfenfeld/9.embed?autosize=true&link=false&modebar=false&width=100%&height=100%" style="border:none;min-width:450px;min-height:450px;width:100%;height:100%"></iframe>
+<iframe src="/assets/charts/digits-umap-neighbors-comparison.html" style="width:100%;height:500px;border:none;"></iframe>
 
 Small `n_neighbors` reveals fine village structure — many small clusters. Large `n_neighbors` shows the continental layout — fewer, broader regions. Neither is more true. They answer different questions.
 
@@ -223,7 +223,7 @@ fig.update_layout(height=450)
 fig.show()
 ```
 
-<iframe frameborder="0" scrolling="no" src="//plot.ly/~wolfenfeld/10.embed?autosize=true&link=false&modebar=false&width=100%&height=100%" style="border:none;min-width:450px;min-height:500px;width:100%;height:500px"></iframe>
+<iframe src="/assets/charts/digits-grand-tournament.html" style="width:100%;height:500px;border:none;"></iframe>
 
 PCA and SVD show the honest, partial picture. t-SNE and UMAP show the dramatic, beautiful one.
 

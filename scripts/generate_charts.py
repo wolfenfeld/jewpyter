@@ -1,33 +1,49 @@
 """
-Run this script to generate and upload all Plotly charts for the Cartographer's Dilemma posts.
+Generates all Plotly charts for the Cartographer's Dilemma posts.
+
+Outputs:
+  - assets/charts/*.html    — interactive iframes for jewpyter.com
+  - assets/img/DimReduction-post/*.png  — static images for Medium
 
 Requirements:
-    pip install chart-studio plotly scikit-learn umap-learn pandas numpy
+    pip install plotly scikit-learn umap-learn pandas numpy kaleido
 
-Setup:
-    1. Go to https://chart-studio.plotly.com/settings/api
-    2. Copy your API key
-    3. Run: python upload_charts.py --api-key YOUR_API_KEY
+Usage:
+    python scripts/generate_charts.py
+    python scripts/generate_charts.py --charts 1 2 3   # specific charts only
+    python scripts/generate_charts.py --no-png          # skip PNG export
 """
 
 import argparse
+import os
 import numpy as np
 import pandas as pd
 import plotly.express as px
-import chart_studio
-import chart_studio.plotly as py
 from sklearn.datasets import load_iris, load_digits, make_swiss_roll
 from sklearn.decomposition import PCA, TruncatedSVD
 from sklearn.manifold import TSNE
 from sklearn.preprocessing import StandardScaler
 
-USERNAME = "wolfenfeld"
+CHARTS_DIR = os.path.join(os.path.dirname(__file__), "../assets/charts")
+IMAGES_DIR = os.path.join(os.path.dirname(__file__), "../assets/img/DimReduction-post")
+
+EXPORT_PNG = True
 
 
-def upload(fig, filename):
-    url = py.plot(fig, filename=filename, auto_open=False)
-    print(f"  ✓  {filename} → {url}")
-    return url
+def save(fig, name):
+    os.makedirs(CHARTS_DIR, exist_ok=True)
+    html_path = os.path.join(CHARTS_DIR, f"{name}.html")
+    fig.write_html(html_path, include_plotlyjs="cdn", full_html=True)
+    print(f"  ✓  {html_path}")
+
+    if EXPORT_PNG:
+        os.makedirs(IMAGES_DIR, exist_ok=True)
+        png_path = os.path.join(IMAGES_DIR, f"{name}.png")
+        try:
+            fig.write_image(png_path, scale=2, width=900, height=500)
+            print(f"  ✓  {png_path}")
+        except Exception as e:
+            print(f"  ✗  PNG export failed ({e}) — install kaleido: pip install kaleido")
 
 
 def chart_1_iris_pca():
@@ -50,7 +66,7 @@ def chart_1_iris_pca():
         title="The Iris Fields — PCA Projection",
     )
     fig.update_traces(marker=dict(size=8, opacity=0.8))
-    return upload(fig, "iris-pca-scatter")
+    save(fig, "iris-pca-scatter")
 
 
 def chart_2_iris_scree():
@@ -77,7 +93,7 @@ def chart_2_iris_scree():
         name="Cumulative",
         line=dict(color="#e8a95c", width=2),
     )
-    return upload(fig, "iris-pca-scree")
+    save(fig, "iris-pca-scree")
 
 
 def chart_3_swiss_roll():
@@ -98,7 +114,7 @@ def chart_3_swiss_roll():
         },
         title="The Enchanted Scroll — PCA Loses the Structure",
     )
-    return upload(fig, "swiss-roll-pca")
+    save(fig, "swiss-roll-pca")
 
 
 def chart_4_digits_svd():
@@ -116,7 +132,7 @@ def chart_4_digits_svd():
         title="The Digits of Digitia — SVD Projection",
     )
     fig.update_traces(marker=dict(size=5, opacity=0.7))
-    return upload(fig, "digits-svd-scatter")
+    save(fig, "digits-svd-scatter")
 
 
 def chart_5_singular_values():
@@ -133,7 +149,7 @@ def chart_5_singular_values():
         labels={"x": "Component", "y": "Singular Value"},
         title="The Hierarchy of Power — Singular Values of Digitia",
     )
-    return upload(fig, "digits-singular-values")
+    save(fig, "digits-singular-values")
 
 
 def chart_6_tsne():
@@ -152,7 +168,7 @@ def chart_6_tsne():
         title="The Digits of Digitia — t-SNE (perplexity=30)",
     )
     fig.update_traces(marker=dict(size=5, opacity=0.8))
-    return upload(fig, "digits-tsne-30")
+    save(fig, "digits-tsne-30")
 
 
 def chart_7_tsne_perplexity():
@@ -181,7 +197,7 @@ def chart_7_tsne_perplexity():
     )
     fig.update_traces(marker=dict(size=4, opacity=0.7))
     fig.for_each_annotation(lambda a: a.update(text=a.text.split("=")[-1]))
-    return upload(fig, "digits-tsne-perplexity-comparison")
+    save(fig, "digits-tsne-perplexity-comparison")
 
 
 def chart_8_umap():
@@ -190,7 +206,7 @@ def chart_8_umap():
         import umap
     except ImportError:
         print("  ✗  umap-learn not installed. Run: pip install umap-learn")
-        return None
+        return
 
     digits = load_digits()
     X = StandardScaler().fit_transform(digits.data)
@@ -206,7 +222,7 @@ def chart_8_umap():
         title="The Digits of Digitia — UMAP",
     )
     fig.update_traces(marker=dict(size=5, opacity=0.8))
-    return upload(fig, "digits-umap")
+    save(fig, "digits-umap")
 
 
 def chart_9_umap_neighbors():
@@ -215,7 +231,7 @@ def chart_9_umap_neighbors():
         import umap
     except ImportError:
         print("  ✗  umap-learn not installed.")
-        return None
+        return
 
     digits = load_digits()
     X = StandardScaler().fit_transform(digits.data)
@@ -241,16 +257,16 @@ def chart_9_umap_neighbors():
     )
     fig.update_traces(marker=dict(size=4, opacity=0.7))
     fig.for_each_annotation(lambda a: a.update(text=a.text.split("=")[-1]))
-    return upload(fig, "digits-umap-neighbors-comparison")
+    save(fig, "digits-umap-neighbors-comparison")
 
 
 def chart_10_tournament():
-    print("Chart 10 — Grand Tournament (all 4 methods)")
+    print("Chart 10 — Grand Tournament (all 4 methods)  [slow — ~2 min]")
     try:
         import umap
     except ImportError:
         print("  ✗  umap-learn not installed.")
-        return None
+        return
 
     digits = load_digits()
     X = StandardScaler().fit_transform(digits.data)
@@ -282,7 +298,7 @@ def chart_10_tournament():
     fig.update_traces(marker=dict(size=4, opacity=0.7))
     fig.for_each_annotation(lambda a: a.update(text=a.text.split("=")[-1]))
     fig.update_layout(height=450)
-    return upload(fig, "digits-grand-tournament")
+    save(fig, "digits-grand-tournament")
 
 
 CHARTS = [
@@ -299,32 +315,24 @@ CHARTS = [
 ]
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Upload Jewpyter charts to Chart Studio")
-    parser.add_argument("--api-key", required=True, help="Your Chart Studio API key")
+    parser = argparse.ArgumentParser(description="Generate Jewpyter charts")
     parser.add_argument(
         "--charts", nargs="+", type=int,
-        help="Which chart numbers to upload (1-10). Omit to upload all.",
+        help="Which chart numbers to generate (1-10). Omit to generate all.",
     )
+    parser.add_argument("--no-png", action="store_true", help="Skip PNG export")
     args = parser.parse_args()
 
-    chart_studio.tools.set_credentials_file(username=USERNAME, api_key=args.api_key)
+    EXPORT_PNG = not args.no_png
 
     to_run = args.charts or list(range(1, len(CHARTS) + 1))
+    print(f"\nGenerating {len(to_run)} chart(s)...\n")
 
-    print(f"\nUploading {len(to_run)} chart(s) as user '{USERNAME}'...\n")
-    urls = {}
     for n in to_run:
-        fn = CHARTS[n - 1]
-        url = fn()
-        if url:
-            urls[n] = url
+        CHARTS[n - 1]()
         print()
 
-    print("=" * 50)
-    print("Done. Chart URLs:")
-    for n, url in urls.items():
-        print(f"  Chart {n:2d}: {url}")
-    print()
-    print("Update the iframe src= values in your posts with these URLs.")
-    print("Replace the embed URL format: https://chart-studio.plotly.com/~wolfenfeld/CHART_ID")
-    print("with: //plot.ly/~wolfenfeld/CHART_ID.embed?autosize=true&link=false&modebar=false")
+    print("Done.")
+    print(f"  HTML → {os.path.abspath(CHARTS_DIR)}")
+    if EXPORT_PNG:
+        print(f"  PNG  → {os.path.abspath(IMAGES_DIR)}")

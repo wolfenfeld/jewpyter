@@ -61,7 +61,7 @@ fig.update_traces(marker=dict(size=8, opacity=0.8))
 fig.show()
 ```
 
-<iframe frameborder="0" scrolling="no" src="//plot.ly/~wolfenfeld/1.embed?autosize=true&link=false&modebar=false&width=100%&height=100%" style="border:none;min-width:450px;min-height:450px;width:100%;height:100%"></iframe>
+<iframe src="/assets/charts/iris-pca-scatter.html" style="width:100%;height:500px;border:none;"></iframe>
 
 The three species of iris separate beautifully along the first principal component — which turns out to be driven almost entirely by petal size. The mage did not know this in advance. The spine of the land revealed it.
 
@@ -92,7 +92,7 @@ fig.add_scatter(
 fig.show()
 ```
 
-<iframe frameborder="0" scrolling="no" src="//plot.ly/~wolfenfeld/2.embed?autosize=true&link=false&modebar=false&width=100%&height=100%" style="border:none;min-width:450px;min-height:450px;width:100%;height:100%"></iframe>
+<iframe src="/assets/charts/iris-pca-scree.html" style="width:100%;height:500px;border:none;"></iframe>
 
 In the Iris Fields, the first two components capture 95.8% of all variance. We lost barely 4% of the kingdom when we drew the map. That is a good map.
 
@@ -120,7 +120,7 @@ fig = px.scatter(
 fig.show()
 ```
 
-<iframe frameborder="0" scrolling="no" src="//plot.ly/~wolfenfeld/3.embed?autosize=true&link=false&modebar=false&width=100%&height=100%" style="border:none;min-width:450px;min-height:450px;width:100%;height:100%"></iframe>
+<iframe src="/assets/charts/swiss-roll-pca.html" style="width:100%;height:500px;border:none;"></iframe>
 
 The Enchanted Scroll — a manifold that curls through 3D space — is flattened by PCA into an unintelligible smear. The structure is gone. The map is useless.
 
@@ -167,7 +167,7 @@ fig.update_traces(marker=dict(size=5, opacity=0.7))
 fig.show()
 ```
 
-<iframe frameborder="0" scrolling="no" src="//plot.ly/~wolfenfeld/4.embed?autosize=true&link=false&modebar=false&width=100%&height=100%" style="border:none;min-width:450px;min-height:450px;width:100%;height:100%"></iframe>
+<iframe src="/assets/charts/digits-svd-scatter.html" style="width:100%;height:500px;border:none;"></iframe>
 
 The digits partially separate — you can see the 0s pulling away from the 1s — but most of the kingdom remains tangled. The linear decomposition has shown us the bones. The flesh is still hidden.
 
@@ -187,7 +187,7 @@ fig = px.bar(
 fig.show()
 ```
 
-<iframe frameborder="0" scrolling="no" src="//plot.ly/~wolfenfeld/5.embed?autosize=true&link=false&modebar=false&width=100%&height=100%" style="border:none;min-width:450px;min-height:450px;width:100%;height:100%"></iframe>
+<iframe src="/assets/charts/digits-singular-values.html" style="width:100%;height:500px;border:none;"></iframe>
 
 The first component towers over the rest. The hierarchy of power drops sharply. This is the Decomposer's gift: it tells you how many dimensions truly matter.
 
