@@ -1,247 +1,266 @@
 ---
 layout: post
-title: "Don't Trust the Map — Part 2"
+title: "The Cartographer's Dilemma — Part 2"
 description: |
-  t-SNE and UMAP: The Dramatic Storytellers
+  t-SNE and UMAP: The Dark Arts of the Dimensionality Mages
 image: /assets/img/DimReduction-post/cover.jpg
 noindex: true
 ---
 
-In [Part 1](/data-science/2026-06-27-DimReduction-part1-post/) we looked at PCA and SVD — the linear methods.
-They're fast, honest, and interpretable. They also leave a lot of structure on the table.
+In [Part 1](/data-science/2026-06-27-DimReduction-part1-post/) we met the honest mages — those who practised PCA and SVD.
+Their maps were truthful. Their maps were also, at times, uninspiring.
 
-In this part we meet the non-linear methods: t-SNE and UMAP.
-They produce the beautiful cluster plots you see in every ML paper and conference talk.
-They are also, in specific and important ways, liars.
+The digits of Digitia remained a tangled mass. The Enchanted Scroll refused to unroll.
+The Queen was not satisfied.
 
-Let's understand exactly what they're doing and when to trust them.
+And so the Council summoned two younger mages — practitioners of the **Dark Arts of Nonlinear Projection**.
+They promised maps of impossible beauty. They delivered.
 
----
-
-# The Problem With Linear
-
-On the digits dataset from Part 1, PCA gave us a plot with overlapping blobs.
-That's not because the digits are hard to separate — a simple classifier gets 97%+ accuracy on this data.
-It's because the separating structure is non-linear, and PCA can only see straight lines.
-
-t-SNE and UMAP can see curves.
+They just didn't always tell the whole truth.
 
 ---
 
-# t-SNE — The Method That Made Everyone Excited About Embeddings
+# The Problem With Straight Lines
 
-t-SNE (t-distributed Stochastic Neighbor Embedding) was introduced in 2008 and became the default visualization tool for high-dimensional data for years. It produces the kind of plots where tight colored clusters snap into view and everything looks learned and structured.
+Before we meet the dark mages, let us understand why the honest arts failed.
 
-## What It's Actually Doing
+PCA and SVD assume the structure in your data can be captured by straight lines — linear combinations of features. Most interesting data does not cooperate with this assumption.
 
-t-SNE doesn't try to preserve distances. It tries to preserve **neighborhoods**.
+The digits in Digitia are not arranged along a straight axis. A `4` does not differ from a `9` in a single linear direction. The structure is curved, tangled, folded.
 
-For each point in high-dimensional space, it builds a probability distribution over all other points: nearby points get high probability, far points get near-zero. It then arranges points in 2D so that the neighborhood distributions match as closely as possible.
+To map a folded land, you need a mage who can follow the folds.
 
-The trick that makes it work is the **t-distribution** in 2D (hence the name). The t-distribution has heavier tails than a Gaussian, which means it's happy to put non-neighbors very far apart in 2D. This is what creates the dramatic cluster separation you see in the plots.
+---
 
-## Running t-SNE
+# t-SNE — The Cartographer of Neighborhoods
+
+The first dark mage arrived from the eastern province of Stochastia, carrying a technique called **t-SNE** — *t-distributed Stochastic Neighbor Embedding*, or as she called it: *The Neighborhood Preserving Enchantment*.
+
+Her philosophy was different from the honest mages.
+
+*"I do not care about distances,"* she said. *"I care about neighbors. Tell me who lives next to whom in the high-dimensional kingdom, and I will place them next to each other on the map."*
+
+The algorithm worked like this: for each citizen, she asked — *who are your closest neighbors in the thousand-dimensional archive?* She then arranged everyone in 2D so that those neighbors stayed close. Non-neighbors were pushed far away, using the heavy tails of a t-distribution to create dramatic separation.
+
+## Casting the Spell on Digitia
 
 ```python
+import numpy as np
+import plotly.express as px
 from sklearn.datasets import load_digits
-from sklearn.manifold import TSNE
 from sklearn.preprocessing import StandardScaler
-import matplotlib.pyplot as plt
+from sklearn.manifold import TSNE
 
 digits = load_digits()
 X = StandardScaler().fit_transform(digits.data)
 y = digits.target
 
-# perplexity is the key hyperparameter — roughly "how many neighbors to consider"
 tsne = TSNE(n_components=2, perplexity=30, random_state=42, n_iter=1000)
 X_tsne = tsne.fit_transform(X)
 
-plt.figure(figsize=(8, 6))
-scatter = plt.scatter(X_tsne[:, 0], X_tsne[:, 1], c=y, cmap='tab10', s=10, alpha=0.8)
-plt.colorbar(scatter)
-plt.title('t-SNE on digits dataset (perplexity=30)')
-plt.show()
+fig = px.scatter(
+    x=X_tsne[:, 0], y=X_tsne[:, 1],
+    color=[str(d) for d in y],
+    color_discrete_sequence=px.colors.qualitative.Set2,
+    labels={'x': 't-SNE 1', 'y': 't-SNE 2'},
+    title='The Digits of Digitia — t-SNE (perplexity=30)'
+)
+fig.update_traces(marker=dict(size=5, opacity=0.8))
+fig.show()
 ```
 
-Beautiful. The digit clusters are clean and well-separated. This is the plot that gets screenshotted.
+<iframe frameborder="0" scrolling="no" src="//plot.ly/~wolfenfeld/6.embed?autosize=true&link=false&modebar=false&width=100%&height=100%" style="border:none;min-width:450px;min-height:450px;width:100%;height:100%"></iframe>
 
-## Now Watch It Lie
+The Queen gasped. Ten beautiful islands floated in the void — one for each digit. The tangled mass had become a constellation.
 
-Change one number — the perplexity — and the map changes completely:
+But the eldest mage leaned over and whispered: *"Ask her what the distances mean."*
+
+## The Perplexity Curse
+
+The dark mage had a secret. Her map depended on a single incantation parameter — **perplexity** — that controlled how many neighbors she considered. Change the perplexity, and the map changed entirely.
 
 ```python
-fig, axes = plt.subplots(1, 3, figsize=(18, 5))
+fig_list = []
+for perplexity in [5, 30, 100]:
+    tsne = TSNE(n_components=2, perplexity=perplexity, random_state=42, n_iter=1000)
+    X_t = tsne.fit_transform(X)
+    for i, label in enumerate(y):
+        fig_list.append({'x': X_t[i, 0], 'y': X_t[i, 1],
+                         'digit': str(label), 'perplexity': f'perplexity={perplexity}'})
 
-for ax, perplexity in zip(axes, [5, 30, 100]):
-    tsne = TSNE(n_components=2, perplexity=perplexity, random_state=42)
-    X_tsne = tsne.fit_transform(X)
-    ax.scatter(X_tsne[:, 0], X_tsne[:, 1], c=y, cmap='tab10', s=5, alpha=0.7)
-    ax.set_title(f'perplexity={perplexity}')
+import pandas as pd
+df = pd.DataFrame(fig_list)
 
-plt.suptitle('Same data, same method, different perplexity — different map', y=1.02)
-plt.tight_layout()
-plt.show()
+fig = px.scatter(
+    df, x='x', y='y', color='digit', facet_col='perplexity',
+    color_discrete_sequence=px.colors.qualitative.Set2,
+    labels={'x': '', 'y': ''},
+    title='The Perplexity Curse — Same Data, Three Different Kingdoms'
+)
+fig.update_traces(marker=dict(size=4, opacity=0.7))
+fig.for_each_annotation(lambda a: a.update(text=a.text.split("=")[-1]))
+fig.show()
 ```
 
-Three very different maps. All of them are "correct" t-SNE outputs. None of them is more true than the others.
+<iframe frameborder="0" scrolling="no" src="//plot.ly/~wolfenfeld/7.embed?autosize=true&link=false&modebar=false&width=100%&height=100%" style="border:none;min-width:450px;min-height:450px;width:100%;height:100%"></iframe>
 
-This is the core problem with t-SNE: the map is a function of your hyperparameters as much as it is of your data.
+Three maps. Three entirely different stories. All of them are technically correct t-SNE outputs.
 
-## The Three Rules of t-SNE
+The Council declared three laws governing the use of t-SNE:
 
-**1. Distances between clusters are meaningless.**
-The algorithm actively pushes non-neighbors apart regardless of how far they actually were. Two clusters being far apart in the plot tells you nothing about their actual separation in feature space.
+1. **The distances between islands are meaningless.** The mage pushed non-neighbors apart regardless of how far they truly were. Two islands far apart on the map may be neighbors in reality.
+2. **The size of islands is meaningless.** Dense regions are expanded, sparse ones are compressed. A large island may represent a tiny village.
+3. **The map is not reproducible without the random seed.** Run the spell twice, get two different kingdoms. Always record your `random_state`.
 
-**2. Cluster sizes are meaningless.**
-Dense regions get expanded, sparse regions get compressed. A large cluster in t-SNE space might correspond to a tiny, tight cluster in the original space.
-
-**3. It is non-deterministic.**
-Without `random_state`, two runs give two different maps. Always set `random_state` when reporting results.
-
-**What t-SNE is good for:** Verifying that local structure exists. If you trained a word embedding and want to check that similar words cluster together — t-SNE is perfect. You're asking "do neighbors stay neighbors?" and t-SNE answers that question well. Just don't read anything into the global layout.
+**When to summon t-SNE:** When you want to verify that local structure exists. If you trained a word embedding and want to confirm that similar words cluster together — t-SNE will show you. Just do not read the inter-cluster distances.
 
 ---
 
-# UMAP — The Pragmatist
+# UMAP — The Pragmatist of the Dark Arts
 
-UMAP (Uniform Manifold Approximation and Projection) is the current state of the art for most use cases. It's faster than t-SNE, more reproducible, and does a better job of preserving global structure alongside local structure.
+The second dark mage arrived from the western province of Topology. She practised **UMAP** — *Uniform Manifold Approximation and Projection*, or as she modestly called it: *The Reasonable Art*.
 
-Under the hood it's mathematically more sophisticated than t-SNE — it's built on ideas from topology and Riemannian geometry — but intuitively it's asking a similar question: how do I arrange points in 2D such that the neighborhood graph looks similar to the one in high-dimensional space?
+She had studied the failures of the t-SNE mage and built something more balanced.
 
-## Running UMAP
+*"I preserve neighborhoods too,"* she said, *"but I also try to preserve the global shape of the land. My maps are faster to draw, more reproducible, and the relative positions of the islands carry at least some meaning."*
+
+Her magic was built on Riemannian geometry and topological data analysis — arts so ancient even the eldest mage had only read about them. But the results spoke for themselves.
+
+## Summoning UMAP
 
 ```python
-# pip install umap-learn
-import umap
+import umap  # pip install umap-learn
 
 reducer = umap.UMAP(n_components=2, n_neighbors=15, min_dist=0.1, random_state=42)
 X_umap = reducer.fit_transform(X)
 
-plt.figure(figsize=(8, 6))
-scatter = plt.scatter(X_umap[:, 0], X_umap[:, 1], c=y, cmap='tab10', s=10, alpha=0.8)
-plt.colorbar(scatter)
-plt.title('UMAP on digits dataset')
-plt.show()
+fig = px.scatter(
+    x=X_umap[:, 0], y=X_umap[:, 1],
+    color=[str(d) for d in y],
+    color_discrete_sequence=px.colors.qualitative.Set2,
+    labels={'x': 'UMAP 1', 'y': 'UMAP 2'},
+    title='The Digits of Digitia — UMAP'
+)
+fig.update_traces(marker=dict(size=5, opacity=0.8))
+fig.show()
 ```
 
-## The Key Hyperparameters
+<iframe frameborder="0" scrolling="no" src="//plot.ly/~wolfenfeld/8.embed?autosize=true&link=false&modebar=false&width=100%&height=100%" style="border:none;min-width:450px;min-height:450px;width:100%;height:100%"></iframe>
 
-`n_neighbors` controls the balance between local and global structure:
-- Small values (5–10): focus on fine-grained local neighborhoods, many small clusters
-- Large values (50–200): zoom out, global structure dominates
+Beautiful islands again — but now with more consistent positioning between runs, and a global layout that roughly reflects how similar the digits are to each other. The `4`s and `9`s live nearby. The `0`s and `1`s are far apart.
 
-`min_dist` controls how tightly points are packed in 2D:
-- Small values (0.0–0.1): tight clusters, good for cluster identification
-- Large values (0.5–1.0): more spread out, better for seeing continuous structure
+## The n_neighbors Incantation
+
+Like t-SNE, UMAP has its own parameter that changes the story. `n_neighbors` controls the balance between local and global structure.
 
 ```python
-fig, axes = plt.subplots(2, 2, figsize=(12, 10))
-params = [(5, 0.0), (5, 0.5), (50, 0.0), (50, 0.5)]
+records = []
+for n_neighbors in [5, 15, 50]:
+    reducer = umap.UMAP(n_neighbors=n_neighbors, min_dist=0.1, random_state=42)
+    X_u = reducer.fit_transform(X)
+    for i, label in enumerate(y):
+        records.append({'x': X_u[i, 0], 'y': X_u[i, 1],
+                        'digit': str(label), 'n_neighbors': f'n_neighbors={n_neighbors}'})
 
-for ax, (n_neighbors, min_dist) in zip(axes.flat, params):
-    reducer = umap.UMAP(n_neighbors=n_neighbors, min_dist=min_dist, random_state=42)
-    X_umap = reducer.fit_transform(X)
-    ax.scatter(X_umap[:, 0], X_umap[:, 1], c=y, cmap='tab10', s=5, alpha=0.7)
-    ax.set_title(f'n_neighbors={n_neighbors}, min_dist={min_dist}')
+df = pd.DataFrame(records)
 
-plt.tight_layout()
-plt.show()
+fig = px.scatter(
+    df, x='x', y='y', color='digit', facet_col='n_neighbors',
+    color_discrete_sequence=px.colors.qualitative.Set2,
+    labels={'x': '', 'y': ''},
+    title='The n_neighbors Incantation — Local vs Global Structure'
+)
+fig.update_traces(marker=dict(size=4, opacity=0.7))
+fig.for_each_annotation(lambda a: a.update(text=a.text.split("=")[-1]))
+fig.show()
 ```
 
-Again: same data, different maps. The story UMAP tells depends on the parameters you choose.
+<iframe frameborder="0" scrolling="no" src="//plot.ly/~wolfenfeld/9.embed?autosize=true&link=false&modebar=false&width=100%&height=100%" style="border:none;min-width:450px;min-height:450px;width:100%;height:100%"></iframe>
 
-## UMAP vs t-SNE — A Direct Comparison
+Small `n_neighbors` reveals fine village structure — many small clusters. Large `n_neighbors` shows the continental layout — fewer, broader regions. Neither is more true. They answer different questions.
+
+---
+
+# The Great Tournament — All Four Arts on One Field
+
+Finally, the Council held a tournament. All four mages cast their spells on the same kingdom — the Digits of Digitia — and the results were displayed side by side.
 
 ```python
 import time
+from sklearn.decomposition import PCA, TruncatedSVD
 
-fig, axes = plt.subplots(1, 2, figsize=(14, 5))
+records = []
+methods = {}
 
-# t-SNE
-start = time.time()
-X_tsne = TSNE(n_components=2, random_state=42).fit_transform(X)
-tsne_time = time.time() - start
-axes[0].scatter(X_tsne[:, 0], X_tsne[:, 1], c=y, cmap='tab10', s=10, alpha=0.7)
-axes[0].set_title(f't-SNE ({tsne_time:.1f}s)')
+pca = PCA(n_components=2)
+methods['PCA'] = pca.fit_transform(X)
 
-# UMAP
-start = time.time()
-X_umap = umap.UMAP(random_state=42).fit_transform(X)
-umap_time = time.time() - start
-axes[1].scatter(X_umap[:, 0], X_umap[:, 1], c=y, cmap='tab10', s=10, alpha=0.7)
-axes[1].set_title(f'UMAP ({umap_time:.1f}s)')
+svd = TruncatedSVD(n_components=2, random_state=42)
+methods['SVD'] = svd.fit_transform(digits.data)
 
-plt.tight_layout()
-plt.show()
+tsne = TSNE(n_components=2, perplexity=30, random_state=42)
+methods['t-SNE'] = tsne.fit_transform(X)
+
+reducer = umap.UMAP(n_components=2, random_state=42)
+methods['UMAP'] = reducer.fit_transform(X)
+
+for method_name, X_reduced in methods.items():
+    for i, label in enumerate(y):
+        records.append({'x': X_reduced[i, 0], 'y': X_reduced[i, 1],
+                        'digit': str(label), 'method': method_name})
+
+df = pd.DataFrame(records)
+
+fig = px.scatter(
+    df, x='x', y='y', color='digit', facet_col='method',
+    color_discrete_sequence=px.colors.qualitative.Set2,
+    labels={'x': '', 'y': ''},
+    title='The Grand Tournament — Four Arts, One Kingdom'
+)
+fig.update_traces(marker=dict(size=4, opacity=0.7))
+fig.for_each_annotation(lambda a: a.update(text=a.text.split("=")[-1]))
+fig.update_layout(height=450)
+fig.show()
 ```
 
-On most datasets UMAP runs 5–10x faster than t-SNE. For large datasets (100k+ points) this difference is the deciding factor.
+<iframe frameborder="0" scrolling="no" src="//plot.ly/~wolfenfeld/10.embed?autosize=true&link=false&modebar=false&width=100%&height=100%" style="border:none;min-width:450px;min-height:500px;width:100%;height:500px"></iframe>
+
+PCA and SVD show the honest, partial picture. t-SNE and UMAP show the dramatic, beautiful one.
+
+Both are true. They answer different questions.
 
 ---
 
-# The Complete Picture
+# The Cartographer's Code of Honor
 
-Here's all four methods on the same data side by side:
+After the tournament, the Council inscribed the following laws on the Archive walls:
 
-```python
-from sklearn.decomposition import PCA
-from sklearn.manifold import TSNE
-import umap
-
-fig, axes = plt.subplots(1, 4, figsize=(20, 4))
-
-methods = {
-    'PCA': PCA(n_components=2).fit_transform(X),
-    'SVD': TruncatedSVD(n_components=2).fit_transform(X),
-    't-SNE': TSNE(n_components=2, random_state=42).fit_transform(X),
-    'UMAP': umap.UMAP(random_state=42).fit_transform(X),
-}
-
-for ax, (name, X_reduced) in zip(axes, methods.items()):
-    ax.scatter(X_reduced[:, 0], X_reduced[:, 1], c=y, cmap='tab10', s=5, alpha=0.7)
-    ax.set_title(name)
-    ax.set_xticks([])
-    ax.set_yticks([])
-
-plt.suptitle('Digits dataset — four projections of the same truth', y=1.02)
-plt.tight_layout()
-plt.show()
-```
-
-PCA and SVD show you the honest picture: partial separation, lots of overlap, because the linear projection can only do so much. t-SNE and UMAP show you the dramatic picture: tight, clean clusters that feel definitive.
-
-Neither is more "correct." They're answering different questions.
-
----
-
-# The Decision Guide
-
-| Question | Method |
+| Question to answer | Summon |
 |---|---|
-| What features drive the variance in my data? | PCA |
-| I have sparse text/interaction data | SVD (TruncatedSVD) |
-| I want to check if my embedding learned local structure | t-SNE |
-| I need fast exploration of a large dataset | UMAP |
-| I'm preprocessing features for a downstream model | PCA |
-| I want the global layout to be somewhat meaningful | UMAP over t-SNE |
-| I need a reproducible plot for a paper | UMAP (with fixed `random_state`) |
+| Which features drive the most variance? | PCA |
+| Sparse text or interaction data | SVD |
+| Does my embedding group similar items together? | t-SNE |
+| Fast exploration of a large dataset | UMAP |
+| Preprocessing before training a model | PCA |
+| A reproducible visualization for a report | UMAP (with fixed `random_state`) |
+| Making something that impresses the Queen | any of them |
 
-One meta-rule: **always run PCA first.** It takes seconds. If your first two principal components explain 95% of variance, you don't need UMAP — you're already done. Use the non-linear methods when PCA leaves too much on the floor.
+And above all laws, the eldest mage added one final rule:
+
+> *Always run PCA first. It costs nothing. If your first two components explain 95% of variance, you do not need the dark arts. The honest map is enough.*
 
 ---
 
-# Conclusion
+# Epilogue
 
-PCA and SVD (Part 1) make honest promises: they preserve variance, they tell you how much they preserved, and the result is the same every time.
+The Queen received her maps. They were beautiful. Some were honest. Some were dramatic. All of them were useful, provided you knew which lie each one was telling.
 
-t-SNE and UMAP make your data look beautiful, but the beauty is partly construction. The distances they show you are not distances in your original space. The clusters they reveal are real — but their sizes, separations, and shapes are artifacts of the algorithm and its hyperparameters.
+The mages returned to their towers. The Archive remained infinite.
 
-This doesn't make them bad tools. It makes them tools you need to understand before you trust.
+And somewhere in the northern province of Digitia, a `4` and a `9` sat next to each other in the high-dimensional space, wondering why every map placed them so far apart.
 
-The next time someone shows you a beautiful cluster plot, ask them two questions:
-1. Which method did you use?
-2. What happens when you change the perplexity?
-
-The map is not the territory. But a map you understand is still useful.
+---
 
 [← Part 1: PCA and SVD](/data-science/2026-06-27-DimReduction-part1-post/)
+
+*All code for this post is available in the [Jewpyter notebook repository](https://github.com/wolfenfeld/jewpyter/blob/master/notebooks/DimensionalityReduction.ipynb).*
