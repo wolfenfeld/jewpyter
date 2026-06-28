@@ -128,36 +128,49 @@ def chart_3_swiss_roll():
 
 
 def chart_4_digits_svd():
-    print("Chart 4 — Digits SVD scatter")
+    print("Chart 4 — SVD portrait reconstruction")
+    import plotly.graph_objects as go
+    from plotly.subplots import make_subplots
+
     digits = load_digits()
+    X_digits = digits.data.astype(float)
 
-    svd = TruncatedSVD(n_components=2, random_state=42)
-    X_svd = svd.fit_transform(digits.data)
+    U, sigma, Vt = np.linalg.svd(X_digits, full_matrices=False)
 
-    fig = px.scatter(
-        x=X_svd[:, 0], y=X_svd[:, 1],
-        color=[str(d) for d in digits.target],
-        color_discrete_sequence=px.colors.qualitative.Set2,
-        labels={"x": "SVD Component 1", "y": "SVD Component 2"},
-        title="The Digits of Digitia — SVD Projection",
+    sample = 0
+    ranks = [1, 3, 8, 20, 40, 64]
+
+    fig = make_subplots(
+        rows=1, cols=len(ranks),
+        subplot_titles=[f"k={k}" for k in ranks],
+        horizontal_spacing=0.02,
     )
-    fig.update_traces(marker=dict(size=5, opacity=0.7))
-    save(fig, "digits-svd-scatter")
+    for i, k in enumerate(ranks):
+        reconstructed = (U[sample, :k] * sigma[:k]) @ Vt[:k, :]
+        fig.add_trace(
+            go.Heatmap(z=reconstructed.reshape(8, 8), colorscale="gray",
+                       showscale=False, reversescale=True),
+            row=1, col=i + 1,
+        )
+    fig.update_xaxes(showticklabels=False)
+    fig.update_yaxes(showticklabels=False, autorange="reversed")
+    fig.update_layout(title="Portrait Restoration — From 1 to 64 Singular Values", height=280)
+    save(fig, "svd-reconstruction")
 
 
 def chart_5_singular_values():
     print("Chart 5 — Digits singular values")
     digits = load_digits()
 
-    svd_full = TruncatedSVD(n_components=20, random_state=42)
+    svd_full = TruncatedSVD(n_components=40, random_state=42)
     svd_full.fit(digits.data)
 
     fig = px.bar(
-        x=list(range(1, 21)),
+        x=list(range(1, 41)),
         y=svd_full.singular_values_,
         color_discrete_sequence=["#9b7fd4"],
-        labels={"x": "Component", "y": "Singular Value"},
-        title="The Hierarchy of Power — Singular Values of Digitia",
+        labels={"x": "Singular Value Rank", "y": "Singular Value"},
+        title="The Hierarchy of Power — How Much Each Layer Contributes",
     )
     save(fig, "digits-singular-values")
 

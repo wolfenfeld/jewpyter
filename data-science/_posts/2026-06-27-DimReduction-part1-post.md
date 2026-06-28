@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "The Cartographer's Dilemma — Part 1"
+title: "The Map Maker's Dilemma — Part 1"
 description: |
   PCA and SVD: Ancient Arts of the Dimensionality Mages
 image: /assets/img/DimReduction-post/cover-part1.jpg
@@ -11,7 +11,7 @@ In the kingdom of Vectoria, all knowledge was stored in the Great Archive — an
 Height, weight, spending habits, favorite spells, number of dragons owned.
 The Archive was complete. The Archive was perfect. The Archive was completely unusable.
 
-No cartographer could draw a map of it. No general could read it on a battlefield.
+No map maker could draw a map of it. No general could read it on a battlefield.
 And so the Council of Mages was summoned.
 
 *"We need a map,"* said the Queen. *"A map we can actually look at."*
@@ -65,7 +65,7 @@ fig.show()
 
 The three species of iris separate beautifully along the first principal component — which turns out to be driven almost entirely by petal size. The mage did not know this in advance. The spine of the land revealed it.
 
-## How Much Did We Keep?
+## How Much Did We Keep — and What Did We Lose?
 
 The most honest thing about PCA is that it tells you exactly what it threw away.
 
@@ -94,11 +94,121 @@ fig.show()
 
 <iframe src="/assets/charts/iris-pca-scree.html" style="width:100%;height:500px;border:none;"></iframe>
 
-In the Iris Fields, the first two components capture 95.8% of all variance. We lost barely 4% of the kingdom when we drew the map. That is a good map.
+The first two components capture 95.8% of all variance. We lost 4.2% of the kingdom when we drew the map. Sounds small. But what exactly is that 4.2%?
 
-## When the Spine Finder Fails
+The answer lives in the components we dropped. You can inspect them:
 
-But what if the kingdom is not shaped like a spine? What if it is shaped like a scroll?
+```python
+feature_names = iris.feature_names
+for i, component in enumerate(pca_full.components_):
+    print(f"PC{i+1}: " + ", ".join(
+        f"{name}: {weight:.2f}" for name, weight in zip(feature_names, component)
+    ))
+```
+
+PC3 and PC4, which we discarded, are driven primarily by **sepal width** — a feature that does not separate the species well, but does carry real biological information about flower shape within each species.
+
+What we lost: the ability to distinguish, say, a wide-petaled setosa from a narrow-petaled one. What we kept: everything needed to tell the three species apart.
+
+This is the map maker's judgement call. The 4.2% we discarded is not noise — it is real variation, just variation that did not matter for our goal. If our goal were different (predicting individual flower weight, perhaps), we might need those components back.
+
+A good map maker does not just look at the percentage. She asks: *what is in the part I am discarding, and do I care about it?*
+
+---
+
+# The Art of SVD — The Portrait Restorer
+
+Deeper in the Archive lives a more ancient magic: **Singular Value Decomposition**, known as *The Decomposer*.
+
+Where PCA finds directions of variance, SVD dismantles the data itself into its fundamental layers. Any scroll — any matrix — can be written as:
+
+**X = U · Σ · Vᵀ**
+
+Three matrices. **U** holds the citizen portraits. **Σ** holds the *singular values* — a ranking of importance, from most to least. **Vᵀ** holds the feature patterns.
+
+The crucial insight: if you keep only the top *k* singular values and discard the rest, you get the best possible *k*-layer approximation of the original data. Not an approximation in any vague sense — the *provably best* one, in terms of reconstruction error.
+
+This makes SVD the art of **compression**. Not just projection.
+
+## Restoring the Portraits of Digitia
+
+In the northern province of Digitia, every citizen's identity scroll is not words but pixels — an 8×8 portrait of a handwritten digit, 64 values in total.
+
+The Archive holds 1,797 such portraits. SVD can compress the entire collection by finding the shared structure across all portraits. Each digit can then be *reconstructed* from just a handful of singular values — the most important layers — rather than all 64 pixel values.
+
+```python
+from sklearn.datasets import load_digits
+import numpy as np
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
+
+digits = load_digits()
+X_digits = digits.data.astype(float)
+
+U, sigma, Vt = np.linalg.svd(X_digits, full_matrices=False)
+
+# Reconstruct one portrait using different numbers of singular values
+sample = 0
+ranks = [1, 3, 8, 20, 40, 64]
+
+fig = make_subplots(
+    rows=1, cols=len(ranks),
+    subplot_titles=[f'k={k}' for k in ranks]
+)
+for i, k in enumerate(ranks):
+    reconstructed = (U[sample, :k] * sigma[:k]) @ Vt[:k, :]
+    fig.add_trace(
+        go.Heatmap(z=reconstructed.reshape(8, 8), colorscale='gray',
+                   showscale=False, reversescale=True),
+        row=1, col=i+1
+    )
+fig.update_layout(title='Portrait Restoration — From 1 to 64 Singular Values')
+fig.show()
+```
+
+<iframe src="/assets/charts/svd-reconstruction.html" style="width:100%;height:300px;border:none;"></iframe>
+
+With **k=1**, you see a ghost — barely a smudge. With **k=8**, the digit is recognisable. With **k=20**, it is sharp. With **k=64** you have the original, nothing lost.
+
+The Archive that once required 64 values per portrait can now be read from 20. That is the Decomposer's gift: not just a map, but a compressed version of the original that you can reconstruct at will.
+
+## The Hierarchy of Power
+
+The singular values tell you how much each layer contributes:
+
+```python
+fig = px.bar(
+    x=list(range(1, 41)),
+    y=sigma[:40],
+    color_discrete_sequence=['#9b7fd4'],
+    labels={'x': 'Singular Value Rank', 'y': 'Singular Value'},
+    title='The Hierarchy of Power — How Much Each Layer Contributes'
+)
+fig.show()
+```
+
+<iframe src="/assets/charts/digits-singular-values.html" style="width:100%;height:500px;border:none;"></iframe>
+
+The first layer towers over the rest. The drop is steep and then levels off. This is the signature of data with real structure — a few layers carry most of the story.
+
+## PCA and SVD — Two Names for One Truth
+
+In truth, PCA *is* SVD. When the sklearn mages implemented PCA, they called SVD inside it. The difference is practical:
+
+- **PCA** mean-centers the data first and reports explained variance — better for exploration.
+- **SVD** skips centering — essential for sparse data (text, interaction logs) where centering would destroy the sparsity and exhaust memory.
+
+For dense, tabular data: use PCA. For sparse matrices with millions of entries: use TruncatedSVD directly.
+
+---
+
+# The Limit of Straight Lines
+
+The honest arts have served us well. PCA revealed the spine of the Iris Fields. SVD restored the portraits of Digitia from a fraction of their original size. Both gave us receipts — exact accounts of what was kept and what was discarded.
+
+But the Archive holds stranger lands than these.
+
+In the eastern province lives the **Enchanted Scroll** — a dataset that curls through three dimensions like a rolled-up map. PCA looks at it and sees only the shadow it casts on the wall.
 
 ```python
 from sklearn.datasets import make_swiss_roll
@@ -122,86 +232,13 @@ fig.show()
 
 <iframe src="/assets/charts/swiss-roll-pca.html" style="width:100%;height:500px;border:none;"></iframe>
 
-The Enchanted Scroll — a manifold that curls through 3D space — is flattened by PCA into an unintelligible smear. The structure is gone. The map is useless.
+What should be a graceful spiral is flattened into an unintelligible smear. Points that are far apart on the scroll end up neighbours on the map. Points that are close on the scroll end up separated. The structure is not just hidden — it is actively distorted.
 
-This is not a failure of the mage. This is the honest limit of a linear art.
+This is not a failure of skill. It is the honest limit of any art that speaks only in straight lines.
 
----
+To map a scroll, you need a mage who can follow the curve.
 
-# The Art of SVD — The Decomposition of All Things
-
-Deeper in the Archive lives a more ancient magic: **Singular Value Decomposition**, known as *The Decomposer*.
-
-Where PCA finds directions of variance, SVD dismantles the data itself into its fundamental components. Any scroll — any matrix — can be written as:
-
-**X = U · Σ · Vᵀ**
-
-Three matrices. U holds the citizen portraits. Σ holds the *singular values* — a ranking of importance, from most to least. Vᵀ holds the feature patterns. Discard the small singular values and you keep the essential story.
-
-In truth, PCA *is* SVD. When the sklearn mages implemented PCA, they called SVD inside it. The difference is in what you can do directly with SVD — especially with scrolls too large and too sparse to mean-center.
-
-## SVD on the Digits of the Realm
-
-In the northern province of Digitia, citizens are described not by measurements but by 64 pixel values — an 8×8 portrait of a handwritten digit.
-
-```python
-from sklearn.datasets import load_digits
-from sklearn.decomposition import TruncatedSVD
-
-digits = load_digits()
-X_digits = digits.data  # 1797 samples, 64 features
-y_digits = digits.target
-
-svd = TruncatedSVD(n_components=2, random_state=42)
-X_svd = svd.fit_transform(X_digits)
-
-fig = px.scatter(
-    x=X_svd[:, 0], y=X_svd[:, 1],
-    color=[str(d) for d in y_digits],
-    color_discrete_sequence=px.colors.qualitative.Set2,
-    labels={'x': 'SVD Component 1', 'y': 'SVD Component 2'},
-    title='The Digits of Digitia — SVD Projection',
-    hover_data={'digit': y_digits}
-)
-fig.update_traces(marker=dict(size=5, opacity=0.7))
-fig.show()
-```
-
-<iframe src="/assets/charts/digits-svd-scatter.html" style="width:100%;height:500px;border:none;"></iframe>
-
-The digits partially separate — you can see the 0s pulling away from the 1s — but most of the kingdom remains tangled. The linear decomposition has shown us the bones. The flesh is still hidden.
-
-## The Singular Values — A Ranking of Power
-
-```python
-svd_full = TruncatedSVD(n_components=20, random_state=42)
-svd_full.fit(X_digits)
-
-fig = px.bar(
-    x=list(range(1, 21)),
-    y=svd_full.singular_values_,
-    color_discrete_sequence=['#9b7fd4'],
-    labels={'x': 'Component', 'y': 'Singular Value'},
-    title='The Hierarchy of Power — Singular Values of Digitia'
-)
-fig.show()
-```
-
-<iframe src="/assets/charts/digits-singular-values.html" style="width:100%;height:500px;border:none;"></iframe>
-
-The first component towers over the rest. The hierarchy of power drops sharply. This is the Decomposer's gift: it tells you how many dimensions truly matter.
-
----
-
-# The Mage's Conclusion
-
-PCA and SVD are the honest arts. They make a promise — *preserve the most variance, or reveal the most important components* — and they keep it. They give you a receipt. They tell you exactly what they kept and what they discarded.
-
-But their honesty has a price. They speak only in straight lines. The Enchanted Scroll defeated them. The tangled neighborhoods of Digitia remain tangled.
-
-For those problems, the kingdom turned to darker, more dramatic arts.
-
-Those stories are told in [Part 2 →](/data-science/2026-06-27-DimReduction-part2-post/)
+Those mages — and their darker, more dramatic arts — are waiting in [Part 2 →](/data-science/2026-06-27-DimReduction-part2-post/)
 
 ---
 
