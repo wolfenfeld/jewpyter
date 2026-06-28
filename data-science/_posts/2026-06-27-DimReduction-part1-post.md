@@ -220,11 +220,15 @@ For dense tabular data and exploration: use PCA. For compression, recognition, a
 
 # The Limit of Straight Lines
 
-The honest arts have served us well. PCA revealed the spine of the Iris Fields. SVD restored the portraits of Digitia from a fraction of their original size. Both gave us receipts — exact accounts of what was kept and what was discarded.
+The honest arts have served the kingdom well.
 
-But the Archive holds stranger lands than these.
+PCA mapped the Iris Fields in two dimensions, preserving 95.8% of everything that mattered — and told us exactly what the remaining 4.2% contained. SVD learned the shared structure of a thousand faces, compressed each portrait to a fraction of its original size, and recognised a stranger it had never met.
 
-In the eastern province lives the **Enchanted Scroll** — a dataset that curls through three dimensions like a rolled-up map. PCA looks at it and sees only the shadow it casts on the wall.
+Both arts gave receipts. Both kept their promises.
+
+But a messenger arrived from the eastern province with troubling news. A peculiar land had been discovered — the **Enchanted Scroll**, a territory that had rolled itself into a spiral through three dimensions. The Royal Map Makers were summoned. They applied PCA. They applied SVD.
+
+The map they produced looked like this:
 
 ```python
 from sklearn.datasets import make_swiss_roll
@@ -241,18 +245,22 @@ fig = px.scatter(
     color_continuous_scale='teal',
     labels={'x': f'PC1 ({pca_roll.explained_variance_ratio_[0]:.1%})',
             'y': f'PC2 ({pca_roll.explained_variance_ratio_[1]:.1%})'},
-    title='The Enchanted Scroll — PCA Loses the Structure'
+    title='The Enchanted Scroll — What the Honest Arts Produce'
 )
 fig.show()
 ```
 
 <iframe src="/assets/charts/swiss-roll-pca.html" style="width:100%;height:500px;border:none;"></iframe>
 
-What should be a graceful spiral is flattened into an unintelligible smear. Points that are far apart on the scroll end up neighbours on the map. Points that are close on the scroll end up separated. The structure is not just hidden — it is actively distorted.
+A smear. An unintelligible, useless smear.
 
-This is not a failure of skill. It is the honest limit of any art that speaks only in straight lines.
+The scroll's colour tells you where each point sits along the spiral — inner curl, middle band, outer edge. On the true map those colours should form clean, separated bands. Instead they are scrambled together. Citizens who live on opposite ends of the scroll appear as neighbours. Citizens who live side by side appear as strangers.
 
-To map a scroll, you need a mage who can follow the curve.
+PCA reported that it captured 64% of the variance. It was not lying. But the 36% it discarded was the part that encoded the curl — and without the curl, the map of the Enchanted Scroll is worse than useless. It is actively misleading.
+
+This is not a failure of the mages. It is the honest limit of any art that speaks only in straight lines. The scroll's structure is curved, and no straight line can follow a curve.
+
+The Queen looked at the smear and made her decision. *"Summon the others,"* she said. *"The ones who work in shadow."*
 
 Those mages — and their darker, more dramatic arts — are waiting in [Part 2 →](/data-science/2026-06-27-DimReduction-part2-post/)
 
