@@ -48,16 +48,16 @@ Her philosophy was different from the honest mages.
 
 The algorithm worked like this: for each citizen, she asked — *who are your closest neighbors in the high-dimensional archive?* She then arranged everyone in 2D so that those neighbors stayed close. Non-neighbors were pushed far away, using the heavy tails of a t-distribution to create dramatic separation.
 
-## Recognising Families in the Face Vault
+## Reuniting the Families in the Face Vault
 
-Recall the Face Vault from Part 1. SVD had learned to compress and reconstruct individual portraits — but it could not answer a different question: *which of these 400 faces belong to the same person?*
+The Face Vault held a tangle. PCA could not separate the 40 families — lighting, angle, and expression drowned out the subtler signal of identity. The Queen sent for t-SNE.
 
-The vault holds portraits of 40 noble families, ten paintings each. The paintings were shuffled and stored without labels. PCA was asked to arrange them on a map, hoping that faces from the same family would cluster together.
+The dark mage did not look at the whole vault at once. She asked every portrait a single question: *who are your closest neighbors?* Then she arranged all 400 portraits in 2D so that neighbors stayed near each other. The global distances between families were irrelevant to her — only the local question mattered.
 
 ```python
 from sklearn.datasets import fetch_olivetti_faces
-from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
+from sklearn.manifold import TSNE
 import plotly.express as px
 
 dataset = fetch_olivetti_faces(shuffle=True, random_state=42)
@@ -65,31 +65,6 @@ X_faces = dataset.data
 y_faces = dataset.target.astype(str)
 
 X_scaled = StandardScaler().fit_transform(X_faces)
-pca = PCA(n_components=2)
-X_pca = pca.fit_transform(X_scaled)
-
-fig = px.scatter(
-    x=X_pca[:, 0], y=X_pca[:, 1],
-    color=y_faces,
-    labels={'x': f'PC1 ({pca.explained_variance_ratio_[0]:.1%})',
-            'y': f'PC2 ({pca.explained_variance_ratio_[1]:.1%})'},
-    title='The Face Vault — PCA Cannot Find the Families',
-    color_discrete_sequence=px.colors.qualitative.Alphabet
-)
-fig.update_traces(marker=dict(size=6, opacity=0.7))
-fig.update_layout(showlegend=False)
-fig.show()
-```
-
-<iframe src="/assets/charts/faces-pca.html" style="width:100%;height:500px;border:none;"></iframe>
-
-A tangle. Forty families, indistinguishable. PCA found the directions of greatest variance — the spread of lighting conditions, head angles, expressions — but it could not find the families.
-
-Now t-SNE was summoned.
-
-```python
-from sklearn.manifold import TSNE
-
 tsne = TSNE(n_components=2, perplexity=30, random_state=42)
 X_faces_tsne = tsne.fit_transform(X_scaled)
 
@@ -108,8 +83,6 @@ fig.show()
 <iframe src="/assets/charts/faces-tsne.html" style="width:100%;height:500px;border:none;"></iframe>
 
 Forty islands. Each one a family — ten portraits of the same person, clustered together without ever being told who belongs to whom. t-SNE did not know the labels. It only asked: *who looks most like whom?* And the families revealed themselves.
-
-This is the difference between PCA and t-SNE in practice. PCA maps the dominant sources of variation — lighting, angle, expression vary far more across the dataset than identity does, so identity gets drowned out. t-SNE maps neighborhoods — and within a neighborhood, the dominant signal is *this face looks like that face*, which is exactly identity.
 
 The Queen looked at the forty islands and smiled. *"Now we can find anyone."*
 
