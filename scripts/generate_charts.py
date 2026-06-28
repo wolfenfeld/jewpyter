@@ -189,6 +189,24 @@ def chart_5_singular_values():
     save(fig, "digits-singular-values")
 
 
+def chart_5b_swiss_roll_tsne():
+    print("Chart 5b — Swiss Roll t-SNE")
+    X_roll, color = make_swiss_roll(n_samples=1500, noise=0.1, random_state=42)
+    X_roll_scaled = StandardScaler().fit_transform(X_roll)
+
+    tsne_roll = TSNE(n_components=2, perplexity=30, random_state=42)
+    X_roll_tsne = tsne_roll.fit_transform(X_roll_scaled)
+
+    fig = px.scatter(
+        x=X_roll_tsne[:, 0], y=X_roll_tsne[:, 1],
+        color=color,
+        color_continuous_scale="teal",
+        labels={"x": "t-SNE 1", "y": "t-SNE 2"},
+        title="The Enchanted Scroll — Unrolled by t-SNE",
+    )
+    save(fig, "swiss-roll-tsne")
+
+
 def chart_6_tsne():
     print("Chart 6 — Digits t-SNE (perplexity=30)  [slow — ~60s]")
     digits = load_digits()
@@ -344,6 +362,7 @@ CHARTS = [
     chart_3_swiss_roll,
     chart_4_digits_svd,
     chart_5_singular_values,
+    chart_5b_swiss_roll_tsne,
     chart_6_tsne,
     chart_7_tsne_perplexity,
     chart_8_umap,

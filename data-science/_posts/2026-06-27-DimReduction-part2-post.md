@@ -46,7 +46,37 @@ Her philosophy was different from the honest mages.
 
 *"I do not care about distances,"* she said. *"I care about neighbors. Tell me who lives next to whom in the high-dimensional kingdom, and I will place them next to each other on the map."*
 
-The algorithm worked like this: for each citizen, she asked — *who are your closest neighbors in the thousand-dimensional archive?* She then arranged everyone in 2D so that those neighbors stayed close. Non-neighbors were pushed far away, using the heavy tails of a t-distribution to create dramatic separation.
+The algorithm worked like this: for each citizen, she asked — *who are your closest neighbors in the high-dimensional archive?* She then arranged everyone in 2D so that those neighbors stayed close. Non-neighbors were pushed far away, using the heavy tails of a t-distribution to create dramatic separation.
+
+This, the Council realised, was exactly what the Enchanted Scroll needed. The scroll's problem was not that its citizens lacked structure — it was that PCA had ignored *who lived next to whom* and focused only on the directions of greatest spread. t-SNE asked a different question entirely.
+
+```python
+from sklearn.datasets import make_swiss_roll
+from sklearn.manifold import TSNE
+from sklearn.preprocessing import StandardScaler
+import plotly.express as px
+
+X_roll, color = make_swiss_roll(n_samples=1500, noise=0.1, random_state=42)
+X_roll_scaled = StandardScaler().fit_transform(X_roll)
+
+tsne_roll = TSNE(n_components=2, perplexity=30, random_state=42)
+X_roll_tsne = tsne_roll.fit_transform(X_roll_scaled)
+
+fig = px.scatter(
+    x=X_roll_tsne[:, 0], y=X_roll_tsne[:, 1],
+    color=color,
+    color_continuous_scale='teal',
+    labels={'x': 't-SNE 1', 'y': 't-SNE 2'},
+    title='The Enchanted Scroll — Unrolled by t-SNE'
+)
+fig.show()
+```
+
+<iframe src="/assets/charts/swiss-roll-tsne.html" style="width:100%;height:500px;border:none;"></iframe>
+
+The smear became a ribbon. The colour bands — inner curl, middle, outer edge — separated cleanly. Citizens who were true neighbors on the scroll were now neighbors on the map.
+
+The Queen approved. The eldest mage said nothing. He was already thinking about the perplexity parameter.
 
 ## Casting the Spell on Digitia
 
