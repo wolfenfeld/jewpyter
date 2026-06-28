@@ -94,6 +94,10 @@ The eldest mage cleared his throat. *"Before we celebrate, Your Majesty, there i
 
 ## Casting the Spell on Digitia
 
+Word of t-SNE's success spread across the kingdom. A delegation arrived from **Digitia** — a province whose citizens were handwritten digits, each described by 64 pixel measurements. The province had long struggled to organise its population: a `4` looked nothing like a `1`, yet all ten digits were piled together in the same high-dimensional space with no visible order.
+
+They asked the dark mage to draw them a map.
+
 ```python
 import numpy as np
 import plotly.express as px
