@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "The Cartographer's Dilemma — Part 2"
+title: "The Map Maker's Dilemma — Part 2"
 description: |
   t-SNE and UMAP: The Dark Arts of the Dimensionality Mages
 image: /assets/img/DimReduction-post/cover-part2.jpg
@@ -8,9 +8,13 @@ noindex: true
 ---
 
 In [Part 1](/data-science/2026-06-27-DimReduction-part1-post/) we met the honest mages — those who practised PCA and SVD.
-Their maps were truthful. Their maps were also, at times, uninspiring.
+PCA revealed the spine of the Iris Fields. SVD learned the patterns of a thousand faces and could recognise a stranger it had never seen.
+Their maps were truthful. Their receipts were impeccable.
 
-The digits of Digitia remained a tangled mass. The Enchanted Scroll refused to unroll.
+But at the end of Part 1, the honest arts met their limit.
+
+The **Enchanted Scroll** — a dataset that curls through three dimensions like a rolled-up map — defeated them both. PCA flattened it into an unintelligible smear. Points that were neighbors on the scroll ended up strangers on the map. The structure was not just hidden. It was destroyed.
+
 The Queen was not satisfied.
 
 And so the Council summoned two younger mages — practitioners of the **Dark Arts of Nonlinear Projection**.
@@ -22,17 +26,19 @@ They just didn't always tell the whole truth.
 
 # The Problem With Straight Lines
 
-Before we meet the dark mages, let us understand why the honest arts failed.
+The honest arts failed on the Enchanted Scroll because they speak only in straight lines — linear combinations of features. The scroll's structure is inherently curved: to travel from one end to the other, you must follow the curl, not cut across it.
 
-PCA and SVD assume the structure in your data can be captured by straight lines — linear combinations of features. Most interesting data does not cooperate with this assumption.
+This is not a quirk of toy datasets. Most real high-dimensional data has this property:
 
-The digits in Digitia are not arranged along a straight axis. A `4` does not differ from a `9` in a single linear direction. The structure is curved, tangled, folded.
+- The space of human faces does not lie on a flat plane — it curves through pixel space along axes of age, expression, lighting, and identity.
+- The space of word meanings is not linear — "king" minus "man" plus "woman" lands near "queen" only because the embedding has learned a curved manifold of relationships.
+- The digits in Digitia are not arranged along a straight axis. A `4` does not differ from a `9` in a single linear direction. The structure is curved, tangled, folded.
 
 To map a folded land, you need a mage who can follow the folds.
 
 ---
 
-# t-SNE — The Cartographer of Neighborhoods
+# t-SNE — The Map Maker of Neighborhoods
 
 The first dark mage arrived from the eastern province of Stochastia, carrying a technique called **t-SNE** — *t-distributed Stochastic Neighbor Embedding*, or as she called it: *The Neighborhood Preserving Enchantment*.
 
@@ -231,7 +237,7 @@ Both are true. They answer different questions.
 
 ---
 
-# The Cartographer's Code of Honor
+# The Map Maker's Code of Honor
 
 After the tournament, the Council inscribed the following laws on the Archive walls:
 

@@ -116,7 +116,7 @@ A good map maker does not just look at the percentage. She asks: *what is in the
 
 ---
 
-# The Art of SVD — The Portrait Restorer
+# The Art of SVD — The Face in the Mosaic
 
 Deeper in the Archive lives a more ancient magic: **Singular Value Decomposition**, known as *The Decomposer*.
 
@@ -124,81 +124,97 @@ Where PCA finds directions of variance, SVD dismantles the data itself into its 
 
 **X = U · Σ · Vᵀ**
 
-Three matrices. **U** holds the citizen portraits. **Σ** holds the *singular values* — a ranking of importance, from most to least. **Vᵀ** holds the feature patterns.
+Three matrices. **U** holds the citizen portraits. **Σ** holds the *singular values* — a ranking of importance, from most to least. **Vᵀ** holds the shared patterns across all portraits.
 
 The crucial insight: if you keep only the top *k* singular values and discard the rest, you get the best possible *k*-layer approximation of the original data. Not an approximation in any vague sense — the *provably best* one, in terms of reconstruction error.
 
-This makes SVD the art of **compression**. Not just projection.
+This makes SVD the art of **recognition without memorisation**.
 
-## Restoring the Portraits of Digitia
+## The Face Vault of Vectoria
 
-In the northern province of Digitia, every citizen's identity scroll is not words but pixels — an 8×8 portrait of a handwritten digit, 64 values in total.
+The kingdom's Face Vault holds 400 portraits — 64×64 pixel paintings of 40 noble families, ten portraits each. The Royal Guard must recognise any citizen at the gate, but carrying 4,096 pixel values per face is impractical. They need a way to compress the knowledge.
 
-The Archive holds 1,797 such portraits. SVD can compress the entire collection by finding the shared structure across all portraits. Each digit can then be *reconstructed* from just a handful of singular values — the most important layers — rather than all 64 pixel values.
+The SVD mage studies 350 of the portraits and learns the **common patterns of faces** — the way light falls on cheekbones, the typical shape of brows, the common structure of noses. These patterns, ranked by importance, are the singular vectors.
+
+When a stranger arrives at the gate, the Guard does not compare all 4,096 pixel values. They project the face onto the learned patterns — just the top *k* — and reconstruct it. If the reconstruction matches a known face, the citizen is recognised.
 
 ```python
-from sklearn.datasets import load_digits
+from sklearn.datasets import fetch_olivetti_faces
 import numpy as np
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
-digits = load_digits()
-X_digits = digits.data.astype(float)
+dataset = fetch_olivetti_faces(shuffle=True, random_state=42)
+faces = dataset.data  # 400 faces, each 4096 pixels (64x64)
 
-U, sigma, Vt = np.linalg.svd(X_digits, full_matrices=False)
+# Train on 350 faces, test recognition on face 351
+X_train = faces[:350]
+test_face = faces[351]
 
-# Reconstruct one portrait using different numbers of singular values
-sample = 0
-ranks = [1, 3, 8, 20, 40, 64]
+U, sigma, Vt = np.linalg.svd(X_train, full_matrices=False)
+
+def reconstruct(face, Vt, k):
+    compressed = face @ Vt[:k].T   # project onto top k patterns
+    return compressed @ Vt[:k]     # reconstruct from those patterns
+
+ranks = [5, 20, 50, 100, 200, 350]
 
 fig = make_subplots(
-    rows=1, cols=len(ranks),
-    subplot_titles=[f'k={k}' for k in ranks]
+    rows=1, cols=len(ranks) + 1,
+    subplot_titles=["Original"] + [f'k={k}' for k in ranks],
+    horizontal_spacing=0.02,
+)
+fig.add_trace(
+    go.Heatmap(z=test_face.reshape(64, 64), colorscale='gray',
+               showscale=False, reversescale=True),
+    row=1, col=1,
 )
 for i, k in enumerate(ranks):
-    reconstructed = (U[sample, :k] * sigma[:k]) @ Vt[:k, :]
+    reconstructed = reconstruct(test_face, Vt, k)
     fig.add_trace(
-        go.Heatmap(z=reconstructed.reshape(8, 8), colorscale='gray',
+        go.Heatmap(z=reconstructed.reshape(64, 64), colorscale='gray',
                    showscale=False, reversescale=True),
-        row=1, col=i+1
+        row=1, col=i + 2,
     )
-fig.update_layout(title='Portrait Restoration — From 1 to 64 Singular Values')
+fig.update_xaxes(showticklabels=False)
+fig.update_yaxes(showticklabels=False, autorange="reversed")
+fig.update_layout(title='Recognising the Stranger — Face Reconstruction at Different Ranks')
 fig.show()
 ```
 
-<iframe src="/assets/charts/svd-reconstruction.html" style="width:100%;height:300px;border:none;"></iframe>
+<iframe src="/assets/charts/svd-reconstruction.html" style="width:100%;height:320px;border:none;"></iframe>
 
-With **k=1**, you see a ghost — barely a smudge. With **k=8**, the digit is recognisable. With **k=20**, it is sharp. With **k=64** you have the original, nothing lost.
+With **k=5**, a ghostly suggestion of a face emerges — enough to confirm it is a face, not a dragon. With **k=50**, the features are clear. With **k=200**, it is nearly indistinguishable from the original. And crucially: face 351 was **never seen during training**. The mage learned the patterns of faces, not the faces themselves.
 
-The Archive that once required 64 values per portrait can now be read from 20. That is the Decomposer's gift: not just a map, but a compressed version of the original that you can reconstruct at will.
+This is the power of SVD over brute-force memorisation. The Guard does not need to store 4,096 numbers per citizen. They store the shared patterns once, and a short code — just *k* coefficients — per citizen. Recognition becomes comparison of codes, not pixels.
 
 ## The Hierarchy of Power
 
-The singular values tell you how much each layer contributes:
+Which patterns matter most? The singular values tell you:
 
 ```python
 fig = px.bar(
-    x=list(range(1, 41)),
-    y=sigma[:40],
+    x=list(range(1, len(sigma) + 1)),
+    y=sigma,
     color_discrete_sequence=['#9b7fd4'],
     labels={'x': 'Singular Value Rank', 'y': 'Singular Value'},
-    title='The Hierarchy of Power — How Much Each Layer Contributes'
+    title='The Hierarchy of Power — How Much Each Pattern Contributes'
 )
 fig.show()
 ```
 
 <iframe src="/assets/charts/digits-singular-values.html" style="width:100%;height:500px;border:none;"></iframe>
 
-The first layer towers over the rest. The drop is steep and then levels off. This is the signature of data with real structure — a few layers carry most of the story.
+The first pattern towers over the rest — it captures the single most common structure across all 350 faces. The drop is steep and then gradual. This is the signature of data with real shared structure: a few patterns carry most of the story, and the rest is individual detail.
 
 ## PCA and SVD — Two Names for One Truth
 
 In truth, PCA *is* SVD. When the sklearn mages implemented PCA, they called SVD inside it. The difference is practical:
 
 - **PCA** mean-centers the data first and reports explained variance — better for exploration.
-- **SVD** skips centering — essential for sparse data (text, interaction logs) where centering would destroy the sparsity and exhaust memory.
+- **SVD** skips centering — essential for sparse data (text, interaction logs) where centering would destroy the sparsity and exhaust memory. It also enables the reconstruction trick above: project a new, unseen point onto learned patterns and reconstruct it.
 
-For dense, tabular data: use PCA. For sparse matrices with millions of entries: use TruncatedSVD directly.
+For dense tabular data and exploration: use PCA. For compression, recognition, and sparse matrices: use SVD directly.
 
 ---
 

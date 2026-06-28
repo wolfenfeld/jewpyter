@@ -128,49 +128,63 @@ def chart_3_swiss_roll():
 
 
 def chart_4_digits_svd():
-    print("Chart 4 — SVD portrait reconstruction")
+    print("Chart 4 — SVD face reconstruction (Olivetti faces)")
     import plotly.graph_objects as go
     from plotly.subplots import make_subplots
+    from sklearn.datasets import fetch_olivetti_faces
 
-    digits = load_digits()
-    X_digits = digits.data.astype(float)
+    dataset = fetch_olivetti_faces(shuffle=True, random_state=42)
+    faces = dataset.data  # 400 x 4096
 
-    U, sigma, Vt = np.linalg.svd(X_digits, full_matrices=False)
+    X_train = faces[:350]
+    test_face = faces[351]
 
-    sample = 0
-    ranks = [1, 3, 8, 20, 40, 64]
+    U, sigma, Vt = np.linalg.svd(X_train, full_matrices=False)
+
+    def reconstruct(face, Vt, k):
+        return (face @ Vt[:k].T) @ Vt[:k]
+
+    ranks = [5, 20, 50, 100, 200, 350]
+    cols = len(ranks) + 1
 
     fig = make_subplots(
-        rows=1, cols=len(ranks),
-        subplot_titles=[f"k={k}" for k in ranks],
+        rows=1, cols=cols,
+        subplot_titles=["Original"] + [f"k={k}" for k in ranks],
         horizontal_spacing=0.02,
     )
+    fig.add_trace(
+        go.Heatmap(z=test_face.reshape(64, 64), colorscale="gray",
+                   showscale=False, reversescale=True),
+        row=1, col=1,
+    )
     for i, k in enumerate(ranks):
-        reconstructed = (U[sample, :k] * sigma[:k]) @ Vt[:k, :]
+        reconstructed = reconstruct(test_face, Vt, k)
         fig.add_trace(
-            go.Heatmap(z=reconstructed.reshape(8, 8), colorscale="gray",
+            go.Heatmap(z=reconstructed.reshape(64, 64), colorscale="gray",
                        showscale=False, reversescale=True),
-            row=1, col=i + 1,
+            row=1, col=i + 2,
         )
     fig.update_xaxes(showticklabels=False)
     fig.update_yaxes(showticklabels=False, autorange="reversed")
-    fig.update_layout(title="Portrait Restoration — From 1 to 64 Singular Values", height=280)
+    fig.update_layout(title="Recognising the Stranger — Face Reconstruction at Different Ranks", height=300)
     save(fig, "svd-reconstruction")
 
 
 def chart_5_singular_values():
-    print("Chart 5 — Digits singular values")
-    digits = load_digits()
+    print("Chart 5 — Olivetti faces singular values")
+    from sklearn.datasets import fetch_olivetti_faces
 
-    svd_full = TruncatedSVD(n_components=40, random_state=42)
-    svd_full.fit(digits.data)
+    dataset = fetch_olivetti_faces(shuffle=True, random_state=42)
+    X_train = dataset.data[:350]
+
+    _, sigma, _ = np.linalg.svd(X_train, full_matrices=False)
 
     fig = px.bar(
-        x=list(range(1, 41)),
-        y=svd_full.singular_values_,
+        x=list(range(1, len(sigma) + 1)),
+        y=sigma,
         color_discrete_sequence=["#9b7fd4"],
         labels={"x": "Singular Value Rank", "y": "Singular Value"},
-        title="The Hierarchy of Power — How Much Each Layer Contributes",
+        title="The Hierarchy of Power — How Much Each Pattern Contributes",
     )
     save(fig, "digits-singular-values")
 
