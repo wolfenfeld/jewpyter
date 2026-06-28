@@ -48,35 +48,72 @@ Her philosophy was different from the honest mages.
 
 The algorithm worked like this: for each citizen, she asked — *who are your closest neighbors in the high-dimensional archive?* She then arranged everyone in 2D so that those neighbors stayed close. Non-neighbors were pushed far away, using the heavy tails of a t-distribution to create dramatic separation.
 
-This, the Council realised, was exactly what the Enchanted Scroll needed. The scroll's problem was not that its citizens lacked structure — it was that PCA had ignored *who lived next to whom* and focused only on the directions of greatest spread. t-SNE asked a different question entirely.
+## Recognising Families in the Face Vault
+
+Recall the Face Vault from Part 1. SVD had learned to compress and reconstruct individual portraits — but it could not answer a different question: *which of these 400 faces belong to the same person?*
+
+The vault holds portraits of 40 noble families, ten paintings each. The paintings were shuffled and stored without labels. PCA was asked to arrange them on a map, hoping that faces from the same family would cluster together.
 
 ```python
-from sklearn.datasets import make_swiss_roll
-from sklearn.manifold import TSNE
+from sklearn.datasets import fetch_olivetti_faces
+from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
 import plotly.express as px
 
-X_roll, color = make_swiss_roll(n_samples=1500, noise=0.1, random_state=42)
-X_roll_scaled = StandardScaler().fit_transform(X_roll)
+dataset = fetch_olivetti_faces(shuffle=True, random_state=42)
+X_faces = dataset.data
+y_faces = dataset.target.astype(str)
 
-tsne_roll = TSNE(n_components=2, perplexity=30, random_state=42)
-X_roll_tsne = tsne_roll.fit_transform(X_roll_scaled)
+X_scaled = StandardScaler().fit_transform(X_faces)
+pca = PCA(n_components=2)
+X_pca = pca.fit_transform(X_scaled)
 
 fig = px.scatter(
-    x=X_roll_tsne[:, 0], y=X_roll_tsne[:, 1],
-    color=color,
-    color_continuous_scale='teal',
-    labels={'x': 't-SNE 1', 'y': 't-SNE 2'},
-    title='The Enchanted Scroll — Unrolled by t-SNE'
+    x=X_pca[:, 0], y=X_pca[:, 1],
+    color=y_faces,
+    labels={'x': f'PC1 ({pca.explained_variance_ratio_[0]:.1%})',
+            'y': f'PC2 ({pca.explained_variance_ratio_[1]:.1%})'},
+    title='The Face Vault — PCA Cannot Find the Families',
+    color_discrete_sequence=px.colors.qualitative.Alphabet
 )
+fig.update_traces(marker=dict(size=6, opacity=0.7))
+fig.update_layout(showlegend=False)
 fig.show()
 ```
 
-<iframe src="/assets/charts/swiss-roll-tsne.html" style="width:100%;height:500px;border:none;"></iframe>
+<iframe src="/assets/charts/faces-pca.html" style="width:100%;height:500px;border:none;"></iframe>
 
-The smear became a ribbon. The colour bands — inner curl, middle, outer edge — separated cleanly. Citizens who were true neighbors on the scroll were now neighbors on the map.
+A tangle. Forty families, indistinguishable. PCA found the directions of greatest variance — the spread of lighting conditions, head angles, expressions — but it could not find the families.
 
-The Queen approved. The eldest mage said nothing. He was already thinking about the perplexity parameter.
+Now t-SNE was summoned.
+
+```python
+from sklearn.manifold import TSNE
+
+tsne = TSNE(n_components=2, perplexity=30, random_state=42)
+X_faces_tsne = tsne.fit_transform(X_scaled)
+
+fig = px.scatter(
+    x=X_faces_tsne[:, 0], y=X_faces_tsne[:, 1],
+    color=y_faces,
+    labels={'x': 't-SNE 1', 'y': 't-SNE 2'},
+    title='The Face Vault — t-SNE Finds the Families',
+    color_discrete_sequence=px.colors.qualitative.Alphabet
+)
+fig.update_traces(marker=dict(size=8, opacity=0.8))
+fig.update_layout(showlegend=False)
+fig.show()
+```
+
+<iframe src="/assets/charts/faces-tsne.html" style="width:100%;height:500px;border:none;"></iframe>
+
+Forty islands. Each one a family — ten portraits of the same person, clustered together without ever being told who belongs to whom. t-SNE did not know the labels. It only asked: *who looks most like whom?* And the families revealed themselves.
+
+This is the difference between PCA and t-SNE in practice. PCA maps the dominant sources of variation — lighting, angle, expression vary far more across the dataset than identity does, so identity gets drowned out. t-SNE maps neighborhoods — and within a neighborhood, the dominant signal is *this face looks like that face*, which is exactly identity.
+
+The Queen looked at the forty islands and smiled. *"Now we can find anyone."*
+
+The eldest mage cleared his throat. *"Before we celebrate, Your Majesty, there is the matter of the perplexity parameter."*
 
 ## Casting the Spell on Digitia
 

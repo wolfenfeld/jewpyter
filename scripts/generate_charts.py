@@ -189,22 +189,53 @@ def chart_5_singular_values():
     save(fig, "digits-singular-values")
 
 
-def chart_5b_swiss_roll_tsne():
-    print("Chart 5b — Swiss Roll t-SNE")
-    X_roll, color = make_swiss_roll(n_samples=1500, noise=0.1, random_state=42)
-    X_roll_scaled = StandardScaler().fit_transform(X_roll)
+def chart_5b_faces_pca():
+    print("Chart 5b — Face Vault PCA")
+    from sklearn.datasets import fetch_olivetti_faces
 
-    tsne_roll = TSNE(n_components=2, perplexity=30, random_state=42)
-    X_roll_tsne = tsne_roll.fit_transform(X_roll_scaled)
+    dataset = fetch_olivetti_faces(shuffle=True, random_state=42)
+    X_faces = dataset.data
+    y_faces = dataset.target.astype(str)
+
+    X_scaled = StandardScaler().fit_transform(X_faces)
+    pca = PCA(n_components=2)
+    X_pca = pca.fit_transform(X_scaled)
 
     fig = px.scatter(
-        x=X_roll_tsne[:, 0], y=X_roll_tsne[:, 1],
-        color=color,
-        color_continuous_scale="teal",
-        labels={"x": "t-SNE 1", "y": "t-SNE 2"},
-        title="The Enchanted Scroll — Unrolled by t-SNE",
+        x=X_pca[:, 0], y=X_pca[:, 1],
+        color=y_faces,
+        labels={"x": f"PC1 ({pca.explained_variance_ratio_[0]:.1%})",
+                "y": f"PC2 ({pca.explained_variance_ratio_[1]:.1%})"},
+        title="The Face Vault — PCA Cannot Find the Families",
+        color_discrete_sequence=px.colors.qualitative.Alphabet,
     )
-    save(fig, "swiss-roll-tsne")
+    fig.update_traces(marker=dict(size=6, opacity=0.7))
+    fig.update_layout(showlegend=False)
+    save(fig, "faces-pca")
+
+
+def chart_5c_faces_tsne():
+    print("Chart 5c — Face Vault t-SNE  [slow — ~30s]")
+    from sklearn.datasets import fetch_olivetti_faces
+
+    dataset = fetch_olivetti_faces(shuffle=True, random_state=42)
+    X_faces = dataset.data
+    y_faces = dataset.target.astype(str)
+
+    X_scaled = StandardScaler().fit_transform(X_faces)
+    tsne = TSNE(n_components=2, perplexity=30, random_state=42)
+    X_tsne = tsne.fit_transform(X_scaled)
+
+    fig = px.scatter(
+        x=X_tsne[:, 0], y=X_tsne[:, 1],
+        color=y_faces,
+        labels={"x": "t-SNE 1", "y": "t-SNE 2"},
+        title="The Face Vault — t-SNE Finds the Families",
+        color_discrete_sequence=px.colors.qualitative.Alphabet,
+    )
+    fig.update_traces(marker=dict(size=8, opacity=0.8))
+    fig.update_layout(showlegend=False)
+    save(fig, "faces-tsne")
 
 
 def chart_6_tsne():
@@ -362,7 +393,8 @@ CHARTS = [
     chart_3_swiss_roll,
     chart_4_digits_svd,
     chart_5_singular_values,
-    chart_5b_swiss_roll_tsne,
+    chart_5b_faces_pca,
+    chart_5c_faces_tsne,
     chart_6_tsne,
     chart_7_tsne_perplexity,
     chart_8_umap,
