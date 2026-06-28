@@ -50,7 +50,11 @@ The algorithm worked like this: for each citizen, she asked — *who are your cl
 
 ## Reuniting the Families in the Face Vault
 
-The Face Vault held a tangle. PCA could not separate the 40 families — lighting, angle, and expression drowned out the subtler signal of identity. The Queen sent for t-SNE.
+The Face Vault held a tangle. Recall the map PCA produced in Part 1 — forty families, completely indistinguishable:
+
+<iframe src="/assets/charts/faces-pca.html" style="width:100%;height:500px;border:none;"></iframe>
+
+PCA found the directions of greatest variance — lighting, head angle, expression — but identity was drowned out. The Queen sent for t-SNE.
 
 The dark mage did not look at the whole vault at once. She asked every portrait a single question: *who are your closest neighbors?* Then she arranged all 400 portraits in 2D so that neighbors stayed near each other. The global distances between families were irrelevant to her — only the local question mattered.
 
