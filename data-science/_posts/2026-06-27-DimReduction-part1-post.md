@@ -222,45 +222,49 @@ For dense tabular data and exploration: use PCA. For compression, recognition, a
 
 The honest arts have served the kingdom well.
 
-PCA mapped the Iris Fields in two dimensions, preserving 95.8% of everything that mattered — and told us exactly what the remaining 4.2% contained. SVD learned the shared structure of a thousand faces, compressed each portrait to a fraction of its original size, and recognised a stranger it had never met.
+PCA mapped the Iris Fields in two dimensions, preserving 95.8% of everything that mattered. SVD learned the shared structure of the Face Vault, compressed each portrait to a fraction of its original size, and recognised a stranger it had never met.
 
 Both arts gave receipts. Both kept their promises.
 
-But a messenger arrived from the eastern province with troubling news. A peculiar land had been discovered — the **Enchanted Scroll**, a territory that had rolled itself into a spiral through three dimensions. The Royal Map Makers were summoned. They applied PCA. They applied SVD.
+But then the Queen asked a different question.
 
-The map they produced looked like this:
+*"SVD can reconstruct a face. Can PCA tell me which faces in the vault belong to the same family?"*
+
+The vault holds portraits of 40 noble families — ten paintings each, shuffled and stored without labels. PCA was asked to arrange them on a map, hoping that faces from the same family would cluster together naturally.
 
 ```python
-from sklearn.datasets import make_swiss_roll
+from sklearn.datasets import fetch_olivetti_faces
 
-X_roll, color = make_swiss_roll(n_samples=1500, noise=0.1, random_state=42)
-X_roll_scaled = StandardScaler().fit_transform(X_roll)
+dataset = fetch_olivetti_faces(shuffle=True, random_state=42)
+X_faces = dataset.data
+y_faces = dataset.target.astype(str)
 
-pca_roll = PCA(n_components=2)
-X_roll_pca = pca_roll.fit_transform(X_roll_scaled)
+X_scaled = StandardScaler().fit_transform(X_faces)
+pca = PCA(n_components=2)
+X_pca = pca.fit_transform(X_scaled)
 
 fig = px.scatter(
-    x=X_roll_pca[:, 0], y=X_roll_pca[:, 1],
-    color=color,
-    color_continuous_scale='teal',
-    labels={'x': f'PC1 ({pca_roll.explained_variance_ratio_[0]:.1%})',
-            'y': f'PC2 ({pca_roll.explained_variance_ratio_[1]:.1%})'},
-    title='The Enchanted Scroll — What the Honest Arts Produce'
+    x=X_pca[:, 0], y=X_pca[:, 1],
+    color=y_faces,
+    labels={'x': f'PC1 ({pca.explained_variance_ratio_[0]:.1%})',
+            'y': f'PC2 ({pca.explained_variance_ratio_[1]:.1%})'},
+    title='The Face Vault — Can PCA Find the Families?',
+    color_discrete_sequence=px.colors.qualitative.Alphabet
 )
+fig.update_traces(marker=dict(size=6, opacity=0.7))
+fig.update_layout(showlegend=False)
 fig.show()
 ```
 
-<iframe src="/assets/charts/swiss-roll-pca.html" style="width:100%;height:500px;border:none;"></iframe>
+<iframe src="/assets/charts/faces-pca.html" style="width:100%;height:500px;border:none;"></iframe>
 
-A smear. An unintelligible, useless smear.
+A tangle. Forty families, completely indistinguishable.
 
-The scroll's colour tells you where each point sits along the spiral — inner curl, middle band, outer edge. On the true map those colours should form clean, separated bands. Instead they are scrambled together. Citizens who live on opposite ends of the scroll appear as neighbours. Citizens who live side by side appear as strangers.
+PCA found the directions of greatest variance — and those directions turned out to be lighting conditions, head angles, and expressions. Those sources of variation are far larger across the 400-portrait dataset than the subtler signal of identity. So identity was drowned out. PCA was not wrong. It maximised variance faithfully. It simply maximised the wrong variance for this question.
 
-PCA reported that it captured 64% of the variance. It was not lying. But the 36% it discarded was the part that encoded the curl — and without the curl, the map of the Enchanted Scroll is worse than useless. It is actively misleading.
+This is the honest limit of a straight-line art: it finds what varies most, not what matters most. When the structure you care about is *local* — which faces look like which faces — no global direction of variance can capture it.
 
-This is not a failure of the mages. It is the honest limit of any art that speaks only in straight lines. The scroll's structure is curved, and no straight line can follow a curve.
-
-The Queen looked at the smear and made her decision. *"Summon the others,"* she said. *"The ones who work in shadow."*
+The Queen looked at the tangle. *"Summon the others,"* she said. *"The ones who work in shadow."*
 
 Those mages — and their darker, more dramatic arts — are waiting in [Part 2 →](/data-science/2026-06-27-DimReduction-part2-post/)
 

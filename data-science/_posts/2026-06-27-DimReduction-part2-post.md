@@ -13,7 +13,7 @@ Their maps were truthful. Their receipts were impeccable.
 
 But at the end of Part 1, the honest arts met their limit.
 
-The **Enchanted Scroll** — a dataset that curls through three dimensions like a rolled-up map — defeated them both. PCA flattened it into an unintelligible smear. Points that were neighbors on the scroll ended up strangers on the map. The structure was not just hidden. It was destroyed.
+The **Face Vault** held portraits of 40 noble families. SVD could compress and reconstruct any face — but when PCA was asked to arrange them on a map, hoping that family members would cluster together, it produced a tangle. Forty families, indistinguishable. The directions of greatest variance turned out to be lighting and expression — not identity. The structure the Queen cared about was invisible to a straight-line art.
 
 The Queen was not satisfied.
 
@@ -26,9 +26,9 @@ They just didn't always tell the whole truth.
 
 # The Problem With Straight Lines
 
-The honest arts failed on the Enchanted Scroll because they speak only in straight lines — linear combinations of features. The scroll's structure is inherently curved: to travel from one end to the other, you must follow the curl, not cut across it.
+The honest arts failed on the Face Vault because they speak only in straight lines — linear combinations of features. PCA finds the global direction of greatest variance across all 400 portraits. But the 40 families are not arranged along a global axis — they occupy 40 small, scattered neighborhoods in face-space. No straight line can pass through all 40 of them at once.
 
-This is not a quirk of toy datasets. Most real high-dimensional data has this property:
+This is not a quirk of this particular dataset. Most real high-dimensional data has this property:
 
 - The space of human faces does not lie on a flat plane — it curves through pixel space along axes of age, expression, lighting, and identity.
 - The space of word meanings is not linear — "king" minus "man" plus "woman" lands near "queen" only because the embedding has learned a curved manifold of relationships.
