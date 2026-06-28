@@ -3,7 +3,7 @@ layout: post
 title: "The Cartographer's Dilemma — Part 2"
 description: |
   t-SNE and UMAP: The Dark Arts of the Dimensionality Mages
-image: /assets/img/DimReduction-post/cover.jpg
+image: /assets/img/DimReduction-post/cover-part2.jpg
 noindex: true
 ---
 

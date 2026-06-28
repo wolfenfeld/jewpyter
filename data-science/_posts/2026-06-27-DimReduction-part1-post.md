@@ -3,7 +3,7 @@ layout: post
 title: "The Cartographer's Dilemma — Part 1"
 description: |
   PCA and SVD: Ancient Arts of the Dimensionality Mages
-image: /assets/img/DimReduction-post/cover.jpg
+image: /assets/img/DimReduction-post/cover-part1.jpg
 noindex: true
 ---
 
