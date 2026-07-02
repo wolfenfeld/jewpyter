@@ -15,7 +15,7 @@ But at the end of Part 1, we asked a harder question: can PCA look at 400 family
 
 PCA found the biggest sources of variation in the data — lighting, head angles, expressions — and completely missed identity. The thing we actually cared about was invisible to it.
 
-So we called in reinforcements. Two newer methods, less respectable in polite statistical company, but considerably more effective when the data doesn't cooperate.
+Mathityahu knew two people. They were not the kind you'd invite to a conference, or introduce to your mother. But when the data doesn't cooperate, you don't call the respectable ones.
 
 They promised results. They delivered. They just came with more caveats than a rental car agreement.
 
