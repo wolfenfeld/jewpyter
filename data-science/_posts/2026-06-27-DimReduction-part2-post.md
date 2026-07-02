@@ -45,7 +45,7 @@ For every point in the data, it figures out who that point is most similar to �
 
 It ignores global structure entirely. It only cares about *who sits next to whom*.
 
-## The Family Photos, Take Two
+## The Family Archive, Take Two
 
 Here's what PCA produced on our 400 family photos — the same mess from Part 1:
 
@@ -83,7 +83,7 @@ fig.show()
 
 <iframe src="/assets/charts/faces-tsne.html" style="width:100%;height:500px;border:none;"></iframe>
 
-Forty islands. Each one a family — ten photos of the same person, clustered together, without t-SNE ever being told who belongs to whom.
+Forty clusters. Each one a family — ten photos of the same person, pulled together without t-SNE ever being told who belongs to whom. Strangers in the original data, neighbors on the map.
 
 It didn't know the labels. It only asked: *who looks most like whom?* And the families sorted themselves out.
 
@@ -124,11 +124,11 @@ fig.show()
 
 <iframe src="/assets/charts/digits-tsne-30.html" style="width:100%;height:500px;border:none;"></iframe>
 
-Ten islands. One per digit. The chaos became a constellation.
+Ten clusters. One per digit. The chaos became a constellation.
 
-But — and there is always a but — the statistician in the corner raised his hand.
+But — and there is always a but — Mathityahu raised his hand.
 
-*"Ask it what the distances between the islands mean."*
+*"Ask it what the distances between the clusters mean."*
 
 ## The Perplexity Problem, or: It Depends
 
@@ -164,7 +164,7 @@ Three maps. Three entirely different stories. All technically correct.
 This is t-SNE's dirty secret, which it will not volunteer unless you ask. Read the fine print:
 
 1. **The distances between clusters are meaningless.** t-SNE pushed non-neighbors apart regardless of how far apart they really are. Two clusters that look far apart on the map might be close in the original data.
-2. **The size of clusters is meaningless.** Dense regions get expanded, sparse regions get compressed. A large island might be a small village.
+2. **The size of clusters is meaningless.** Dense regions get expanded, sparse regions get compressed. A large cluster might be a small village.
 3. **Run it twice, get two different maps.** Always set `random_state`. Always.
 
 **When to use t-SNE:** When you want to check whether local structure exists — do similar things cluster together? It's excellent for this. Just don't try to read the distances between clusters. That's asking for trouble.
