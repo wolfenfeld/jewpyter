@@ -11,7 +11,7 @@ My bubbe kept every piece of information she had ever received. Every receipt, e
 
 This is high-dimensional data. You'd ask it what's for dinner and it would tell you the full history of the chicken.
 
-So we called in the experts. Not rabbis — mathematicians. Which in some circles is worse.
+So we called in **Math**ityahu. His mother wanted him to be a rabbi. He said he'd found a shorter path to the same arguments.
 
 They said: *"We can simplify this for you. But every simplification throws something away. The question is whether you care about what you're throwing away."*
 
