@@ -93,9 +93,9 @@ It's the difference between trying to find your relatives by height (global) ver
 
 ## Now Let's Try It on Numbers
 
-Word spread. A delegation arrived from a province whose citizens were handwritten digits — each described by 64 pixel measurements, 1,797 of them total. They had the same problem: ten kinds of digit, all piled together with no visible organisation.
+Mathityahu wasn't satisfied with one example. He pulled out a dataset of handwritten digits — 1,797 of them, each described by 64 pixel measurements. Ten kinds of digit, all piled together with no visible organisation. Same problem, different data.
 
-They asked t-SNE to draw a map.
+He asked t-SNE the same question.
 
 ```python
 import numpy as np
@@ -173,11 +173,9 @@ This is t-SNE's dirty secret, which it will not volunteer unless you ask. Read t
 
 # UMAP — The More Reasonable One
 
-The second method is **UMAP** — *Uniform Manifold Approximation and Projection*. If t-SNE is the brilliant but unreliable cousin who produces spectacular results you can't quite trust, UMAP is the one who went to therapy and came back with better boundaries.
+Mathityahu's second contact was **UMAP** — *Uniform Manifold Approximation and Projection*. Where t-SNE is the brilliant but unreliable one who produces spectacular results you can't quite trust, UMAP is the one who actually reads the terms and conditions before signing.
 
-UMAP preserves local neighborhoods like t-SNE does, but it also tries to preserve the global shape of the data. It's faster, more reproducible, and the relative positions of clusters carry at least *some* meaning.
-
-*"I care about neighbors too,"* UMAP says, *"but I also remember where things came from."*
+UMAP preserves local neighborhoods like t-SNE does, but it also tries to preserve the global shape of the data. It's faster, more reproducible, and the relative positions of clusters carry at least *some* meaning — not just which family is which, but roughly how similar the families are to each other.
 
 ```python
 import umap  # pip install umap-learn
@@ -228,7 +226,7 @@ fig.show()
 
 <iframe src="/assets/charts/digits-umap-neighbors-comparison.html" style="width:100%;height:500px;border:none;"></iframe>
 
-Small `n_neighbors`: many small clusters, fine village structure. Large `n_neighbors`: fewer, broader regions, continental layout. Neither is more correct. They answer different questions, like asking how big is your family — immediate household or everyone who shows up at Pesach.
+Small `n_neighbors`: many tight clusters, fine local structure. Large `n_neighbors`: fewer, broader groupings, the bigger picture. Neither is more correct. They answer different questions — like asking how big is your family. Immediate household, or everyone who shows up at Pesach?
 
 ---
 
@@ -303,7 +301,7 @@ And the one rule that covers all cases:
 
 # Epilogue
 
-We started with bubbe's filing system — complete, impeccable, unusable.
+We started with bubbe — complete, impeccable, unusable.
 
 We ended with four methods for making it usable, each with its own strengths and its own caveats, each telling a slightly different version of the truth.
 
