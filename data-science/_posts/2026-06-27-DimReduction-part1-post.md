@@ -9,9 +9,7 @@ noindex: true
 
 My bubbe kept every piece of information she had ever received. Every receipt, every letter, every grudge — all of it, organised in a system that made perfect sense to her and to nobody else on earth. You'd ask her one simple question and she'd hand you fourteen folders and a story about something your uncle did in 1987.
 
-This is the curse of high-dimensional data. Everything is there. Nothing is usable.
-
-In data science, we call this the **curse of dimensionality** — a name that sounds dramatic but really just means: *you have too many columns and you can't see anything*. A dataset with 4,096 features per row is like bubbe's filing system. Complete. Impeccable. Completely unusable for any practical purpose.
+This is high-dimensional data. You'd ask it what's for dinner and it would tell you the full history of the chicken.
 
 So we called in the experts. Not rabbis — mathematicians. Which in some circles is worse.
 
