@@ -108,7 +108,7 @@ def chart_2_iris_scree():
 
 def chart_3_swiss_roll():
     print("Chart 3 — Swiss Roll PCA failure")
-    X_roll, color = make_swiss_roll(n_samples=1500, noise=0.1, random_state=42)
+    X_roll, color = make_swiss_roll(n_samples=1500, noise=0.1, random_state=8690)
     X_roll_scaled = StandardScaler().fit_transform(X_roll)
 
     pca_roll = PCA(n_components=2)
@@ -133,7 +133,7 @@ def chart_4_digits_svd():
     from plotly.subplots import make_subplots
     from sklearn.datasets import fetch_olivetti_faces
 
-    dataset = fetch_olivetti_faces(shuffle=True, random_state=42)
+    dataset = fetch_olivetti_faces(shuffle=True, random_state=8690)
     faces = dataset.data  # 400 x 4096
 
     X_train = faces[:350]
@@ -174,7 +174,7 @@ def chart_5_singular_values():
     print("Chart 5 — Olivetti faces singular values")
     from sklearn.datasets import fetch_olivetti_faces
 
-    dataset = fetch_olivetti_faces(shuffle=True, random_state=42)
+    dataset = fetch_olivetti_faces(shuffle=True, random_state=8690)
     X_train = dataset.data[:350]
 
     _, sigma, _ = np.linalg.svd(X_train, full_matrices=False)
@@ -193,7 +193,7 @@ def chart_5b_faces_pca():
     print("Chart 5b — Face Vault PCA")
     from sklearn.datasets import fetch_olivetti_faces
 
-    dataset = fetch_olivetti_faces(shuffle=True, random_state=42)
+    dataset = fetch_olivetti_faces(shuffle=True, random_state=8690)
     X_faces = dataset.data
     y_faces = dataset.target.astype(str)
 
@@ -218,12 +218,12 @@ def chart_5c_faces_tsne():
     print("Chart 5c — Face Vault t-SNE  [slow — ~30s]")
     from sklearn.datasets import fetch_olivetti_faces
 
-    dataset = fetch_olivetti_faces(shuffle=True, random_state=42)
+    dataset = fetch_olivetti_faces(shuffle=True, random_state=8690)
     X_faces = dataset.data
     y_faces = dataset.target.astype(str)
 
     X_scaled = StandardScaler().fit_transform(X_faces)
-    tsne = TSNE(n_components=2, perplexity=30, random_state=42)
+    tsne = TSNE(n_components=2, perplexity=30, random_state=8690)
     X_tsne = tsne.fit_transform(X_scaled)
 
     fig = px.scatter(
@@ -243,7 +243,7 @@ def chart_6_tsne():
     digits = load_digits()
     X = StandardScaler().fit_transform(digits.data)
 
-    tsne = TSNE(n_components=2, perplexity=30, random_state=42, max_iter=1000)
+    tsne = TSNE(n_components=2, perplexity=30, random_state=8690, max_iter=1000)
     X_tsne = tsne.fit_transform(X)
 
     fig = px.scatter(
@@ -265,7 +265,7 @@ def chart_7_tsne_perplexity():
     records = []
     for perplexity in [5, 30, 100]:
         print(f"    running perplexity={perplexity}…")
-        tsne = TSNE(n_components=2, perplexity=perplexity, random_state=42, max_iter=1000)
+        tsne = TSNE(n_components=2, perplexity=perplexity, random_state=8690, max_iter=1000)
         X_t = tsne.fit_transform(X)
         for i, label in enumerate(digits.target):
             records.append({
@@ -297,7 +297,7 @@ def chart_8_umap():
     digits = load_digits()
     X = StandardScaler().fit_transform(digits.data)
 
-    reducer = umap.UMAP(n_components=2, n_neighbors=15, min_dist=0.1, random_state=42)
+    reducer = umap.UMAP(n_components=2, n_neighbors=15, min_dist=0.1, random_state=8690)
     X_umap = reducer.fit_transform(X)
 
     fig = px.scatter(
@@ -325,7 +325,7 @@ def chart_9_umap_neighbors():
     records = []
     for n_neighbors in [5, 15, 50]:
         print(f"    running n_neighbors={n_neighbors}…")
-        reducer = umap.UMAP(n_neighbors=n_neighbors, min_dist=0.1, random_state=42)
+        reducer = umap.UMAP(n_neighbors=n_neighbors, min_dist=0.1, random_state=8690)
         X_u = reducer.fit_transform(X)
         for i, label in enumerate(digits.target):
             records.append({
@@ -361,9 +361,9 @@ def chart_10_tournament():
     records = []
     projections = {
         "PCA":   PCA(n_components=2).fit_transform(X),
-        "SVD":   TruncatedSVD(n_components=2, random_state=42).fit_transform(digits.data),
-        "t-SNE": TSNE(n_components=2, perplexity=30, random_state=42).fit_transform(X),
-        "UMAP":  umap.UMAP(n_components=2, random_state=42).fit_transform(X),
+        "SVD":   TruncatedSVD(n_components=2, random_state=8690).fit_transform(digits.data),
+        "t-SNE": TSNE(n_components=2, perplexity=30, random_state=8690).fit_transform(X),
+        "UMAP":  umap.UMAP(n_components=2, random_state=8690).fit_transform(X),
     }
 
     for method_name, X_reduced in projections.items():
