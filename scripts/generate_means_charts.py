@@ -45,7 +45,6 @@ def save(fig, name):
 
 def chart_means_fixed_distance():
     print("Chart — Fixed distance (harmonic wins)")
-    np.random.seed(8690)
     n = 50
     mu, sigma = 100, 40
 
@@ -87,7 +86,6 @@ def chart_means_fixed_distance():
 
 def chart_means_fixed_duration():
     print("Chart — Fixed duration (arithmetic wins)")
-    np.random.seed(8690)
     n = 30
     mu, sigma = 100, 30
 
@@ -129,7 +127,6 @@ def chart_means_fixed_duration():
 
 def chart_means_population():
     print("Chart — Population growth (geometric wins)")
-    np.random.seed(8690)
     t = 150
     mu, sigma = 1.2, 0.1
     alpha_i = sigma * np.random.randn(t) + mu
