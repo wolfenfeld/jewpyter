@@ -1,62 +1,59 @@
 ---
 layout: post
-title: "The Map Maker's Dilemma — Part 2"
+title: "Too Much Information — Part 2"
 description: |
-  t-SNE and UMAP: The Dark Arts of the Dimensionality Mages
+  t-SNE and UMAP: The Methods Your Statistics Professor Warned You About
 image: /assets/img/DimReduction-post/cover-part2.jpg
 noindex: true
 ---
 
-In [Part 1](/data-science/2026-06-27-DimReduction-part1-post/) we met the honest mages — those who practised PCA and SVD.
-PCA revealed the spine of the Iris Fields. SVD learned the patterns of a thousand faces and could recognise a stranger it had never seen.
-Their maps were truthful. Their receipts were impeccable.
+In [Part 1](/data-science/2026-06-27-DimReduction-part1-post/) we tried to bring order to chaos using PCA and SVD.
 
-But at the end of Part 1, the honest arts met their limit.
+PCA found the main argument in the iris dataset and separated three species beautifully. SVD learned the shared patterns of human faces and could reconstruct a complete stranger from those patterns alone. Impressive results. Very respectable. The kind of thing you'd mention at Shabbat dinner without embarrassment.
 
-The **Face Vault** held portraits of 40 noble families. SVD could compress and reconstruct any face — but when PCA was asked to arrange them on a map, hoping that family members would cluster together, it produced a tangle. Forty families, indistinguishable. The directions of greatest variance turned out to be lighting and expression — not identity. The structure the Queen cared about was invisible to a straight-line art.
+But at the end of Part 1, we asked a harder question: can PCA look at 400 family photos and tell us which faces belong together? The answer was a resounding no — a tangle so hopeless it looked like the seating chart at a divorced family's wedding.
 
-The Queen was not satisfied.
+PCA found the biggest sources of variation in the data — lighting, head angles, expressions — and completely missed identity. The thing we actually cared about was invisible to it.
 
-And so the Council summoned two younger mages — practitioners of the **Dark Arts of Nonlinear Projection**.
-They promised maps of impossible beauty. They delivered.
+So we called in reinforcements. Two newer methods, less respectable in polite statistical company, but considerably more effective when the data doesn't cooperate.
 
-They just didn't always tell the whole truth.
+They promised results. They delivered. They just came with more caveats than a rental car agreement.
 
 ---
 
-# The Problem With Straight Lines
+# Why Straight Lines Aren't Enough
 
-The honest arts failed on the Face Vault because they speak only in straight lines — linear combinations of features. PCA finds the global direction of greatest variance across all 400 portraits. But the 40 families are not arranged along a global axis — they occupy 40 small, scattered neighborhoods in face-space. No straight line can pass through all 40 of them at once.
+PCA failed on the family photos because it thinks in straight lines. It finds the single global direction of maximum spread and calls that the first dimension. But identity isn't spread along a global direction — forty families are forty local neighborhoods scattered through face-space. No single line passes through all of them.
 
-This is not a quirk of this particular dataset. Most real high-dimensional data has this property:
+This turns out to be true of most interesting data:
 
-- The space of human faces does not lie on a flat plane — it curves through pixel space along axes of age, expression, lighting, and identity.
-- The space of word meanings is not linear — "king" minus "man" plus "woman" lands near "queen" only because the embedding has learned a curved manifold of relationships.
-- The digits in Digitia are not arranged along a straight axis. A `4` does not differ from a `9` in a single linear direction. The structure is curved, tangled, folded.
+- Faces don't lie on a flat plane. They curve through pixel-space along axes of age, expression, lighting, and identity — all tangled together.
+- The meaning of words isn't linear. "King" minus "man" plus "woman" lands near "queen" only because the embedding has learned a curved surface of relationships.
+- Handwritten digits aren't arranged along a straight axis. A `4` doesn't differ from a `9` in a single direction. The structure is curved, folded, complicated.
 
-To map a folded land, you need a mage who can follow the folds.
+To find structure in folded data, you need a method that follows the folds instead of trying to flatten everything with one stroke.
 
 ---
 
-# t-SNE — The Map Maker of Neighborhoods
+# t-SNE — The Cousin Who Always Knows Who's Related to Whom
 
-The first dark mage arrived from the eastern province of Stochastia, carrying a technique called **t-SNE** — *t-distributed Stochastic Neighbor Embedding*, or as she called it: *The Neighborhood Preserving Enchantment*.
+The first of the newer methods is **t-SNE** — *t-distributed Stochastic Neighbor Embedding*. A name that takes longer to say than most Talmudic tractates, but the idea is simpler than it sounds.
 
-Her philosophy was different from the honest mages.
+t-SNE doesn't ask *what's the biggest source of variation?* It asks something much more local: *who are your closest neighbors?*
 
-*"I do not care about distances,"* she said. *"I care about neighbors. Tell me who lives next to whom in the high-dimensional kingdom, and I will place them next to each other on the map."*
+For every point in the data, it figures out who that point is most similar to — its neighborhood. Then it arranges everything in 2D so that neighbors stay close to each other and non-neighbors get pushed far away. The heavy tails of a t-distribution are used to create dramatic separation between clusters.
 
-The algorithm worked like this: for each citizen, she asked — *who are your closest neighbors in the high-dimensional archive?* She then arranged everyone in 2D so that those neighbors stayed close. Non-neighbors were pushed far away, using the heavy tails of a t-distribution to create dramatic separation.
+It ignores global structure entirely. It only cares about *who sits next to whom*.
 
-## Reuniting the Families in the Face Vault
+## The Family Photos, Take Two
 
-The Face Vault held a tangle. Recall the map PCA produced in Part 1 — forty families, completely indistinguishable:
+Here's what PCA produced on our 400 family photos — the same mess from Part 1:
 
 <iframe src="/assets/charts/faces-pca.html" style="width:100%;height:500px;border:none;"></iframe>
 
-PCA found the directions of greatest variance — lighting, head angle, expression — but identity was drowned out. The Queen sent for t-SNE.
+Forty families, completely indistinguishable. Lighting, angle, and expression drowned out identity.
 
-The dark mage did not look at the whole vault at once. She asked every portrait a single question: *who are your closest neighbors?* Then she arranged all 400 portraits in 2D so that neighbors stayed near each other. The global distances between families were irrelevant to her — only the local question mattered.
+Now t-SNE tries the same job.
 
 ```python
 from sklearn.datasets import fetch_olivetti_faces
@@ -76,7 +73,7 @@ fig = px.scatter(
     x=X_faces_tsne[:, 0], y=X_faces_tsne[:, 1],
     color=y_faces,
     labels={'x': 't-SNE 1', 'y': 't-SNE 2'},
-    title='The Face Vault — t-SNE Finds the Families',
+    title='The Family Photos — t-SNE Finds the Families',
     color_discrete_sequence=px.colors.qualitative.Alphabet
 )
 fig.update_traces(marker=dict(size=8, opacity=0.8))
@@ -86,17 +83,19 @@ fig.show()
 
 <iframe src="/assets/charts/faces-tsne.html" style="width:100%;height:500px;border:none;"></iframe>
 
-Forty islands. Each one a family — ten portraits of the same person, clustered together without ever being told who belongs to whom. t-SNE did not know the labels. It only asked: *who looks most like whom?* And the families revealed themselves.
+Forty islands. Each one a family — ten photos of the same person, clustered together, without t-SNE ever being told who belongs to whom.
 
-The Queen looked at the forty islands and smiled. *"Now we can find anyone."*
+It didn't know the labels. It only asked: *who looks most like whom?* And the families sorted themselves out.
 
-The eldest mage cleared his throat. *"Before we celebrate, Your Majesty, there is the matter of the perplexity parameter."*
+This is the difference. PCA looks for global variation — and the biggest sources of variation across 400 photos are lighting and angle. t-SNE looks for local similarity — and within any neighborhood, the dominant signal is *this face looks like that face*, which is exactly identity.
 
-## Casting the Spell on Digitia
+It's the difference between trying to find your relatives by height (global) versus by nose shape (local). The nose works better. It usually does.
 
-Word of t-SNE's success spread across the kingdom. A delegation arrived from **Digitia** — a province whose citizens were handwritten digits, each described by 64 pixel measurements. The province had long struggled to organise its population: a `4` looked nothing like a `1`, yet all ten digits were piled together in the same high-dimensional space with no visible order.
+## Now Let's Try It on Numbers
 
-They asked the dark mage to draw them a map.
+Word spread. A delegation arrived from a province whose citizens were handwritten digits — each described by 64 pixel measurements, 1,797 of them total. They had the same problem: ten kinds of digit, all piled together with no visible organisation.
+
+They asked t-SNE to draw a map.
 
 ```python
 import numpy as np
@@ -117,7 +116,7 @@ fig = px.scatter(
     color=[str(d) for d in y],
     color_discrete_sequence=px.colors.qualitative.Set2,
     labels={'x': 't-SNE 1', 'y': 't-SNE 2'},
-    title='The Digits of Digitia — t-SNE (perplexity=30)'
+    title='The Digits — t-SNE (perplexity=30)'
 )
 fig.update_traces(marker=dict(size=5, opacity=0.8))
 fig.show()
@@ -125,13 +124,15 @@ fig.show()
 
 <iframe src="/assets/charts/digits-tsne-30.html" style="width:100%;height:500px;border:none;"></iframe>
 
-The Queen gasped. Ten beautiful islands floated in the void — one for each digit. The tangled mass had become a constellation.
+Ten islands. One per digit. The chaos became a constellation.
 
-But the eldest mage leaned over and whispered: *"Ask her what the distances mean."*
+But — and there is always a but — the statistician in the corner raised his hand.
 
-## The Perplexity Curse
+*"Ask it what the distances between the islands mean."*
 
-The dark mage had a secret. Her map depended on a single incantation parameter — **perplexity** — that controlled how many neighbors she considered. Change the perplexity, and the map changed entirely.
+## The Perplexity Problem, or: It Depends
+
+t-SNE has a parameter called **perplexity** — roughly, how many neighbors it considers for each point. Change this number and you get an entirely different map. Not a slightly different map. An *entirely* different one.
 
 ```python
 fig_list = []
@@ -149,7 +150,7 @@ fig = px.scatter(
     df, x='x', y='y', color='digit', facet_col='perplexity',
     color_discrete_sequence=px.colors.qualitative.Set2,
     labels={'x': '', 'y': ''},
-    title='The Perplexity Curse — Same Data, Three Different Kingdoms'
+    title='The Perplexity Problem — Same Data, Three Different Stories'
 )
 fig.update_traces(marker=dict(size=4, opacity=0.7))
 fig.for_each_annotation(lambda a: a.update(text=a.text.split("=")[-1]))
@@ -158,29 +159,25 @@ fig.show()
 
 <iframe src="/assets/charts/digits-tsne-perplexity-comparison.html" style="width:100%;height:500px;border:none;"></iframe>
 
-Three maps. Three entirely different stories. All of them are technically correct t-SNE outputs.
+Three maps. Three entirely different stories. All technically correct.
 
-The Council declared three laws governing the use of t-SNE:
+This is t-SNE's dirty secret, which it will not volunteer unless you ask. Read the fine print:
 
-1. **The distances between islands are meaningless.** The mage pushed non-neighbors apart regardless of how far they truly were. Two islands far apart on the map may be neighbors in reality.
-2. **The size of islands is meaningless.** Dense regions are expanded, sparse ones are compressed. A large island may represent a tiny village.
-3. **The map is not reproducible without the random seed.** Run the spell twice, get two different kingdoms. Always record your `random_state`.
+1. **The distances between clusters are meaningless.** t-SNE pushed non-neighbors apart regardless of how far apart they really are. Two clusters that look far apart on the map might be close in the original data.
+2. **The size of clusters is meaningless.** Dense regions get expanded, sparse regions get compressed. A large island might be a small village.
+3. **Run it twice, get two different maps.** Always set `random_state`. Always.
 
-**When to summon t-SNE:** When you want to verify that local structure exists. If you trained a word embedding and want to confirm that similar words cluster together — t-SNE will show you. Just do not read the inter-cluster distances.
+**When to use t-SNE:** When you want to check whether local structure exists — do similar things cluster together? It's excellent for this. Just don't try to read the distances between clusters. That's asking for trouble.
 
 ---
 
-# UMAP — The Pragmatist of the Dark Arts
+# UMAP — The More Reasonable One
 
-The second dark mage arrived from the western province of Topology. She practised **UMAP** — *Uniform Manifold Approximation and Projection*, or as she modestly called it: *The Reasonable Art*.
+The second method is **UMAP** — *Uniform Manifold Approximation and Projection*. If t-SNE is the brilliant but unreliable cousin who produces spectacular results you can't quite trust, UMAP is the one who went to therapy and came back with better boundaries.
 
-She had studied the failures of the t-SNE mage and built something more balanced.
+UMAP preserves local neighborhoods like t-SNE does, but it also tries to preserve the global shape of the data. It's faster, more reproducible, and the relative positions of clusters carry at least *some* meaning.
 
-*"I preserve neighborhoods too,"* she said, *"but I also try to preserve the global shape of the land. My maps are faster to draw, more reproducible, and the relative positions of the islands carry at least some meaning."*
-
-Her magic was built on Riemannian geometry and topological data analysis — arts so ancient even the eldest mage had only read about them. But the results spoke for themselves.
-
-## Summoning UMAP
+*"I care about neighbors too,"* UMAP says, *"but I also remember where things came from."*
 
 ```python
 import umap  # pip install umap-learn
@@ -193,7 +190,7 @@ fig = px.scatter(
     color=[str(d) for d in y],
     color_discrete_sequence=px.colors.qualitative.Set2,
     labels={'x': 'UMAP 1', 'y': 'UMAP 2'},
-    title='The Digits of Digitia — UMAP'
+    title='The Digits — UMAP'
 )
 fig.update_traces(marker=dict(size=5, opacity=0.8))
 fig.show()
@@ -201,11 +198,11 @@ fig.show()
 
 <iframe src="/assets/charts/digits-umap.html" style="width:100%;height:500px;border:none;"></iframe>
 
-Beautiful islands again — but now with more consistent positioning between runs, and a global layout that roughly reflects how similar the digits are to each other. The `4`s and `9`s live nearby. The `0`s and `1`s are far apart.
+Beautiful clusters again — but now the layout is more stable between runs, and the global arrangement reflects actual similarity. The `4`s and `9`s live nearby (they look similar). The `0`s and `1`s are far apart (they don't).
 
-## The n_neighbors Incantation
+## The n_neighbors Parameter, or: How Many Relatives Count?
 
-Like t-SNE, UMAP has its own parameter that changes the story. `n_neighbors` controls the balance between local and global structure.
+UMAP has its own tuning knob: `n_neighbors`. Small values focus on very local structure — tight clusters, many of them. Large values zoom out and show the broader continental layout.
 
 ```python
 records = []
@@ -222,7 +219,7 @@ fig = px.scatter(
     df, x='x', y='y', color='digit', facet_col='n_neighbors',
     color_discrete_sequence=px.colors.qualitative.Set2,
     labels={'x': '', 'y': ''},
-    title='The n_neighbors Incantation — Local vs Global Structure'
+    title='Local vs Global — The n_neighbors Tradeoff'
 )
 fig.update_traces(marker=dict(size=4, opacity=0.7))
 fig.for_each_annotation(lambda a: a.update(text=a.text.split("=")[-1]))
@@ -231,13 +228,13 @@ fig.show()
 
 <iframe src="/assets/charts/digits-umap-neighbors-comparison.html" style="width:100%;height:500px;border:none;"></iframe>
 
-Small `n_neighbors` reveals fine village structure — many small clusters. Large `n_neighbors` shows the continental layout — fewer, broader regions. Neither is more true. They answer different questions.
+Small `n_neighbors`: many small clusters, fine village structure. Large `n_neighbors`: fewer, broader regions, continental layout. Neither is more correct. They answer different questions, like asking how big is your family — immediate household or everyone who shows up at Pesach.
 
 ---
 
-# The Great Tournament — All Four Arts on One Field
+# The Full Comparison — All Four Methods, One Dataset
 
-Finally, the Council held a tournament. All four mages cast their spells on the same kingdom — the Digits of Digitia — and the results were displayed side by side.
+Let's put all four methods side by side on the same data and see what each one tells us.
 
 ```python
 import time
@@ -269,7 +266,7 @@ fig = px.scatter(
     df, x='x', y='y', color='digit', facet_col='method',
     color_discrete_sequence=px.colors.qualitative.Set2,
     labels={'x': '', 'y': ''},
-    title='The Grand Tournament — Four Arts, One Kingdom'
+    title='Four Methods, One Dataset'
 )
 fig.update_traces(marker=dict(size=4, opacity=0.7))
 fig.for_each_annotation(lambda a: a.update(text=a.text.split("=")[-1]))
@@ -279,39 +276,42 @@ fig.show()
 
 <iframe src="/assets/charts/digits-grand-tournament.html" style="width:100%;height:500px;border:none;"></iframe>
 
-PCA and SVD show the honest, partial picture. t-SNE and UMAP show the dramatic, beautiful one.
+PCA and SVD: honest, interpretable, partial. t-SNE and UMAP: dramatic, beautiful, handle with care.
 
-Both are true. They answer different questions.
+Both sets are correct. They answer different questions.
 
 ---
 
-# The Map Maker's Code of Honor
+# So When Do You Use What?
 
-After the tournament, the Council inscribed the following laws on the Archive walls:
+After all of this, the practical guide is actually pretty short:
 
-| Question to answer | Summon |
+| What you want to know | Use this |
 |---|---|
 | Which features drive the most variance? | PCA |
-| Sparse text or interaction data | SVD |
-| Does my embedding group similar items together? | t-SNE |
+| Sparse data — text, clicks, ratings | SVD |
+| Do similar things cluster together in my embedding? | t-SNE |
 | Fast exploration of a large dataset | UMAP |
-| Preprocessing before training a model | PCA |
-| A reproducible visualization for a report | UMAP (with fixed `random_state`) |
-| Making something that impresses the Queen | any of them |
+| Preprocessing before model training | PCA |
+| A reproducible visualization to show someone | UMAP (with fixed `random_state`) |
 
-And above all laws, the eldest mage added one final rule:
+And the one rule that covers all cases:
 
-> *Always run PCA first. It costs nothing. If your first two components explain 95% of variance, you do not need the dark arts. The honest map is enough.*
+> *Always run PCA first. It's fast, interpretable, and free. If your first two components explain 95% of variance, you don't need t-SNE or UMAP at all. The simple answer is the right one. This applies to data science and also to most arguments.*
 
 ---
 
 # Epilogue
 
-The Queen received her maps. They were beautiful. Some were honest. Some were dramatic. All of them were useful, provided you knew which lie each one was telling.
+We started with bubbe's filing system — complete, impeccable, unusable.
 
-The mages returned to their towers. The Archive remained infinite.
+We ended with four methods for making it usable, each with its own strengths and its own caveats, each telling a slightly different version of the truth.
 
-And somewhere in the northern province of Digitia, a `4` and a `9` sat next to each other in the high-dimensional space, wondering why every map placed them so far apart.
+The data is still high-dimensional. It always will be. But now at least we can look at it.
+
+And somewhere in the data, a `4` and a `9` are sitting next to each other in the original 64-dimensional space, wondering why every map puts them so far apart.
+
+*They're not that different, those two. If you look closely enough.*
 
 ---
 
