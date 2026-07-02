@@ -73,7 +73,7 @@ def chart_1_iris_pca():
             "x": f"PC1 ({pca.explained_variance_ratio_[0]:.1%} variance)",
             "y": f"PC2 ({pca.explained_variance_ratio_[1]:.1%} variance)",
         },
-        title="The Iris Fields — PCA Projection",
+        title="Iris Flowers — PCA Finds the Main Argument",
     )
     fig.update_traces(marker=dict(size=8, opacity=0.8))
     save(fig, "iris-pca-scatter")
@@ -94,7 +94,7 @@ def chart_2_iris_scree():
         y=pca_full.explained_variance_ratio_,
         color_discrete_sequence=["#4fb1ba"],
         labels={"x": "Principal Component", "y": "Explained Variance"},
-        title="The Scree Plot — How Much of the Kingdom Did We Keep?",
+        title="The Scree Plot — What Did We Keep, and Do We Care?",
     )
     fig.add_scatter(
         x=components,
@@ -166,7 +166,7 @@ def chart_4_digits_svd():
         )
     fig.update_xaxes(showticklabels=False)
     fig.update_yaxes(showticklabels=False, autorange="reversed")
-    fig.update_layout(title="Recognising the Stranger — Face Reconstruction at Different Ranks", height=300)
+    fig.update_layout(title="The Family Nose — Recognising a Stranger at Different Ranks", height=300)
     save(fig, "svd-reconstruction")
 
 
@@ -184,7 +184,7 @@ def chart_5_singular_values():
         y=sigma,
         color_discrete_sequence=["#9b7fd4"],
         labels={"x": "Singular Value Rank", "y": "Singular Value"},
-        title="The Hierarchy of Power — How Much Each Pattern Contributes",
+        title="Which Patterns Do the Heavy Lifting?",
     )
     save(fig, "digits-singular-values")
 
@@ -206,7 +206,7 @@ def chart_5b_faces_pca():
         color=y_faces,
         labels={"x": f"PC1 ({pca.explained_variance_ratio_[0]:.1%})",
                 "y": f"PC2 ({pca.explained_variance_ratio_[1]:.1%})"},
-        title="The Face Vault — PCA Cannot Find the Families",
+        title="400 Family Photos — PCA Cannot Tell Who's Who",
         color_discrete_sequence=px.colors.qualitative.Alphabet,
     )
     fig.update_traces(marker=dict(size=6, opacity=0.7))
@@ -230,7 +230,7 @@ def chart_5c_faces_tsne():
         x=X_tsne[:, 0], y=X_tsne[:, 1],
         color=y_faces,
         labels={"x": "t-SNE 1", "y": "t-SNE 2"},
-        title="The Face Vault — t-SNE Finds the Families",
+        title="400 Family Photos — t-SNE Finds Who's Who",
         color_discrete_sequence=px.colors.qualitative.Alphabet,
     )
     fig.update_traces(marker=dict(size=8, opacity=0.8))
@@ -243,7 +243,7 @@ def chart_6_tsne():
     digits = load_digits()
     X = StandardScaler().fit_transform(digits.data)
 
-    tsne = TSNE(n_components=2, perplexity=30, random_state=42, n_iter=1000)
+    tsne = TSNE(n_components=2, perplexity=30, random_state=42, max_iter=1000)
     X_tsne = tsne.fit_transform(X)
 
     fig = px.scatter(
@@ -251,7 +251,7 @@ def chart_6_tsne():
         color=[str(d) for d in digits.target],
         color_discrete_sequence=px.colors.qualitative.Set2,
         labels={"x": "t-SNE 1", "y": "t-SNE 2"},
-        title="The Digits of Digitia — t-SNE (perplexity=30)",
+        title="Handwritten Digits — t-SNE (perplexity=30)",
     )
     fig.update_traces(marker=dict(size=5, opacity=0.8))
     save(fig, "digits-tsne-30")
@@ -265,7 +265,7 @@ def chart_7_tsne_perplexity():
     records = []
     for perplexity in [5, 30, 100]:
         print(f"    running perplexity={perplexity}…")
-        tsne = TSNE(n_components=2, perplexity=perplexity, random_state=42, n_iter=1000)
+        tsne = TSNE(n_components=2, perplexity=perplexity, random_state=42, max_iter=1000)
         X_t = tsne.fit_transform(X)
         for i, label in enumerate(digits.target):
             records.append({
@@ -279,7 +279,7 @@ def chart_7_tsne_perplexity():
         df, x="x", y="y", color="digit", facet_col="perplexity",
         color_discrete_sequence=px.colors.qualitative.Set2,
         labels={"x": "", "y": ""},
-        title="The Perplexity Curse — Same Data, Three Different Kingdoms",
+        title="The Perplexity Problem — Same Data, Three Different Stories",
     )
     fig.update_traces(marker=dict(size=4, opacity=0.7))
     fig.for_each_annotation(lambda a: a.update(text=a.text.split("=")[-1]))
@@ -305,7 +305,7 @@ def chart_8_umap():
         color=[str(d) for d in digits.target],
         color_discrete_sequence=px.colors.qualitative.Set2,
         labels={"x": "UMAP 1", "y": "UMAP 2"},
-        title="The Digits of Digitia — UMAP",
+        title="Handwritten Digits — UMAP",
     )
     fig.update_traces(marker=dict(size=5, opacity=0.8))
     save(fig, "digits-umap")
@@ -339,7 +339,7 @@ def chart_9_umap_neighbors():
         df, x="x", y="y", color="digit", facet_col="n_neighbors",
         color_discrete_sequence=px.colors.qualitative.Set2,
         labels={"x": "", "y": ""},
-        title="The n_neighbors Incantation — Local vs Global Structure",
+        title="Local vs Global — How Many Relatives Count?",
     )
     fig.update_traces(marker=dict(size=4, opacity=0.7))
     fig.for_each_annotation(lambda a: a.update(text=a.text.split("=")[-1]))
@@ -379,7 +379,7 @@ def chart_10_tournament():
         df, x="x", y="y", color="digit", facet_col="method",
         color_discrete_sequence=px.colors.qualitative.Set2,
         labels={"x": "", "y": ""},
-        title="The Grand Tournament — Four Arts, One Kingdom",
+        title="Four Methods, One Dataset — Pick Your Argument",
     )
     fig.update_traces(marker=dict(size=4, opacity=0.7))
     fig.for_each_annotation(lambda a: a.update(text=a.text.split("=")[-1]))
