@@ -261,7 +261,7 @@ This is the fundamental limitation. PCA speaks only in global directions — str
 
 It's like trying to find your relatives at a crowded wedding by height. You'd pick up a lot of tall strangers before you found your cousins.
 
-*"Oy,"* said the statistician, staring at the tangle. *"We need the other guys."*
+Mathityahu stared at the tangle for a long moment. *"We need the other guys,"* he said. *"The ones who don't believe in straight lines."*
 
 Those other guys — and what they can do — are waiting in [Part 2 →](/data-science/2026-06-27-DimReduction-part2-post/)
 
