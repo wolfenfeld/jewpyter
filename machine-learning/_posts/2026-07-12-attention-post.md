@@ -4,7 +4,6 @@ title: "The Scribe Reads the Room — Part 2"
 description: |
   Self-Attention: Or, How to Listen to Everyone at Once Without Going Completely Meshuggeneh
 image: /assets/img/DimReduction-post/cover-part1.jpg
-noindex: true
 ---
 
 *[This is Part 2. [Part 1 — The Forgetful Scribe](/data-science/2026-07-05-autoencoder-post/) covers autoencoders.]*

@@ -4,7 +4,6 @@ title: "The Whole Room Is Listening — Part 3"
 description: |
   Transformer Encoders: Or, How Multi-Head Attention Listens to Everything Simultaneously Without Missing the Point
 image: /assets/img/DimReduction-post/cover-part1.jpg
-noindex: true
 ---
 
 *[This is Part 3. [Part 1](/data-science/2026-07-05-autoencoder-post/) covers autoencoders. [Part 2](/data-science/2026-07-12-attention-post/) covers self-attention.]*

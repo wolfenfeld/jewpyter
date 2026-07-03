@@ -4,7 +4,6 @@ title: "The Forgetful Scribe — Part 1"
 description: |
   Autoencoders: Or, How to Compress Everything You Know Into Two Numbers and Still Recognize Your Cousin
 image: /assets/img/DimReduction-post/cover-part1.jpg
-noindex: true
 ---
 
 Mathityahu had a cousin — Devorah — who kept every photograph the family had ever taken. Shoeboxes. Closets. An entire drawer dedicated solely to blurry Bar Mitzvah photos from 1994. Her apartment was one fire hazard away from a documentary.
