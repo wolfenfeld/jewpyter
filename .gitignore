@@ -4,3 +4,4 @@ _site/
 palantiri-gh-pages/
 /notebooks/__pycache__
 */.ipynb_checkpoints/*.ipynb
+data/MNIST/
