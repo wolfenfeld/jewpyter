@@ -291,7 +291,6 @@ Several things.
 **3. Interpolation.** Take the latent code of a "3" and the latent code of a "8". Average them. Decode the result. You get something that looks like a digit halfway between the two — a smoothly blended hallucination. This works because the latent space is continuous: nearby codes decode to similar-looking images.
 
 **4. Generation.** Sample a random point from the latent space. Decode it. You get a new image that looks like something the network has seen, but that never existed in the training data. This is the seed of the idea behind generative models — though a plain autoencoder is not very good at this. The latent space is not guaranteed to be smooth, so many random points decode to noise. The **Variational Autoencoder (VAE)** fixes this by explicitly shaping the latent space into a smooth distribution — but that is a story for another day.
-
 **5. Transfer learning.** The encoder, trained on one task, can be reused as a feature extractor for another. Because reconstruction forces the network to understand structure — what makes a 7 look different from a 1 — the latent code carries meaning that no label was needed to produce. Freeze the encoder, attach a small classifier on top, train it on a handful of labeled examples, and the encoder's representations do the heavy lifting. This is the same principle behind BERT and GPT: pretrain cheaply on unlabeled data, fine-tune efficiently on expensive labeled data.
 ---
 
