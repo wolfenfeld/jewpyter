@@ -258,11 +258,128 @@ def chart_positional_encoding():
     save(fig, "positional-encoding")
 
 
+def chart_autoencoder_transfer(model):
+    """Compare transfer learning (32D encoder) vs raw pixels at different labeled-data sizes."""
+    print("Chart — Transfer learning vs raw pixels  [training 32D encoder ~2 min]")
+
+    import torch
+    import torch.nn as nn
+    from torchvision import datasets, transforms
+    from torch.utils.data import DataLoader
+    from sklearn.linear_model import LogisticRegression
+    from sklearn.preprocessing import StandardScaler
+    import warnings
+    warnings.filterwarnings("ignore")
+
+    transform = transforms.ToTensor()
+    train_data = datasets.MNIST("./data", train=True, download=True, transform=transform)
+    test_data  = datasets.MNIST("./data", train=False, download=True, transform=transform)
+
+    # Train a separate 32D autoencoder — more useful for transfer than 2D
+    class Autoencoder32(nn.Module):
+        def __init__(self):
+            super().__init__()
+            self.encoder = nn.Sequential(
+                nn.Flatten(),
+                nn.Linear(784, 256), nn.ReLU(),
+                nn.Linear(256, 64),  nn.ReLU(),
+                nn.Linear(64, 32),
+            )
+            self.decoder = nn.Sequential(
+                nn.Linear(32, 64),  nn.ReLU(),
+                nn.Linear(64, 256), nn.ReLU(),
+                nn.Linear(256, 784), nn.Sigmoid(),
+            )
+        def forward(self, x):
+            z = self.encoder(x)
+            return self.decoder(z), z
+
+    model32 = Autoencoder32()
+    opt = torch.optim.Adam(model32.parameters(), lr=1e-3)
+    crit = nn.MSELoss()
+    loader_full = DataLoader(train_data, batch_size=256, shuffle=True)
+    for epoch in range(20):
+        for imgs, _ in loader_full:
+            recon, _ = model32(imgs)
+            loss = crit(recon, imgs.view(-1, 784))
+            opt.zero_grad(); loss.backward(); opt.step()
+        print(f"    32D epoch {epoch+1}/20  loss={loss.item():.4f}")
+
+    model32.eval()
+
+    def encode_all(ae, dataset):
+        loader = DataLoader(dataset, batch_size=1000)
+        zs, ys = [], []
+        with torch.no_grad():
+            for imgs, labels in loader:
+                zs.append(ae.encoder(imgs).numpy())
+                ys.append(labels.numpy())
+        import numpy as np
+        return np.concatenate(zs), np.concatenate(ys)
+
+    import numpy as np
+    Z_train, y_train = encode_all(model32, train_data)
+    Z_test,  y_test  = encode_all(model32, test_data)
+
+    # Raw pixels
+    X_train = np.array([img.numpy().flatten() for img, _ in train_data])
+    X_test  = np.array([img.numpy().flatten() for img, _ in test_data])
+
+    label_counts = [50, 100, 200, 500, 1000, 2000, 5000]
+    acc_latent, acc_pixels = [], []
+
+    for n in label_counts:
+        # Sample n balanced examples (n // 10 per class)
+        idx = []
+        for cls in range(10):
+            cls_idx = np.where(y_train == cls)[0][:n // 10]
+            idx.extend(cls_idx)
+        idx = np.array(idx)
+
+        # Latent classifier
+        scaler = StandardScaler()
+        clf = LogisticRegression(max_iter=500, C=1.0)
+        clf.fit(scaler.fit_transform(Z_train[idx]), y_train[idx])
+        acc_latent.append(clf.score(scaler.transform(Z_test), y_test) * 100)
+
+        # Raw pixel classifier
+        scaler2 = StandardScaler()
+        clf2 = LogisticRegression(max_iter=500, C=0.1)
+        clf2.fit(scaler2.fit_transform(X_train[idx]), y_train[idx])
+        acc_pixels.append(clf2.score(scaler2.transform(X_test), y_test) * 100)
+
+        print(f"    n={n:5d}  latent={acc_latent[-1]:.1f}%  pixels={acc_pixels[-1]:.1f}%")
+
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(
+        x=label_counts, y=acc_latent,
+        mode="lines+markers", name="Latent code (2D) + linear classifier",
+        line=dict(color="#4fb1ba", width=2.5),
+        marker=dict(size=8),
+    ))
+    fig.add_trace(go.Scatter(
+        x=label_counts, y=acc_pixels,
+        mode="lines+markers", name="Raw pixels (784D) + logistic regression",
+        line=dict(color="#e8a95c", width=2.5, dash="dash"),
+        marker=dict(size=8),
+    ))
+    fig.update_layout(
+        title="Transfer Learning — Latent Codes Beat Raw Pixels When Labels Are Scarce",
+        xaxis_title="Number of Labeled Training Examples",
+        yaxis_title="Test Accuracy (%)",
+        xaxis=dict(type="log"),
+        legend=dict(orientation="h", yanchor="bottom", y=1.02),
+        yaxis_range=[40, 100],
+    )
+    save(fig, "autoencoder-transfer")
+
+
 if __name__ == "__main__":
     print("\nGenerating transformer series charts...\n")
     model, losses = chart_autoencoder_latent_space()
     chart_autoencoder_training_loss(losses)
     chart_autoencoder_reconstructions(model)
+    chart_autoencoder_transfer(model)
     chart_attention_heatmap()
     chart_positional_encoding()
     print("\nDone.\n  Charts → assets/charts/")
