@@ -90,7 +90,84 @@ This is, Mathityahu explained to Devorah, how the brain remembers a face. Not ev
 
 ---
 
-## The Dataset: MNIST Handwritten Digits
+## Why Multiple Layers?
+
+*"Why not go straight from 784 to 2?"* asked Devorah. *"Why the stops in between?"*
+
+A fair question. You could build a single-layer autoencoder that goes directly: 784 → 2 → 784. It would technically work. It would also be terrible.
+
+The reason is that the relationship between a raw pixel grid and a meaningful concept — "this is a 3," "this is a 7" — is not linear. It is built up in stages. Edges first, then curves, then strokes, then digits. Each layer in the encoder learns to detect a slightly higher-level abstraction than the one before it.
+
+- **Layer 784 → 256**: Detects local patterns — edges, corners, small strokes
+- **Layer 256 → 64**: Combines those patterns — loops, lines, junctions
+- **Layer 64 → 2**: Captures global structure — what kind of digit this is
+
+A direct jump from 784 to 2 forces the network to learn all of this in a single linear transformation, which it cannot. The intermediate layers give it room to build concepts gradually.
+
+The decoder mirrors this in reverse — from a global concept, it reconstructs strokes, then pixels.
+
+*"It's like translating,"* said Devorah. *"Word by word doesn't work. You need to understand the sentence first."*
+
+*"Exactly,"* said Mathityahu.
+
+---
+
+## How Do You Choose Layer Sizes?
+
+There is no formula. There are heuristics.
+
+The general principle is a **gradual funnel**: each encoder layer should be meaningfully smaller than the previous one, but not so small that it drops information too abruptly. A common rule of thumb is to halve (or quarter) the size at each step.
+
+For 784 → 2, a reasonable progression might be:
+
+| Approach | Layers |
+|---|---|
+| Aggressive | 784 → 64 → 2 |
+| Moderate (ours) | 784 → 256 → 64 → 2 |
+| Conservative | 784 → 512 → 128 → 32 → 2 |
+
+More layers give the network more capacity to learn complex representations — but also more parameters to train, longer training time, and higher risk of overfitting. For MNIST, the moderate approach is plenty.
+
+The bottleneck size is the most important choice. It controls the information budget:
+
+- **Too small** (e.g., 2 for complex data): blurry, lossy reconstructions. Forces the network to throw away too much.
+- **Too large** (e.g., 256 for simple data): the network memorizes instead of compressing. The latent space is a mess.
+- **Just right**: depends on the complexity of what you want to represent. For MNIST digits, 2 is aggressive but works. For faces, you'd want 64–256.
+
+In practice, you try a few values, look at the reconstructions, and decide whether the blurriness is acceptable.
+
+---
+
+## The Loss Function
+
+The loss function is the measure of wrongness. It is what the network is trying to minimize.
+
+For autoencoders, the natural choice is **reconstruction loss** — how different is the output from the input?
+
+The most common version is **Mean Squared Error (MSE)**:
+
+<script type="math/tex; mode=display">\mathcal{L} = \frac{1}{n} \sum_{i=1}^{n} (x_i - \hat{x}_i)^2</script>
+
+For each pixel, square the difference between the original value and the reconstructed value, then average across all pixels and all examples in the batch. Large errors are penalized more than small ones (because of the squaring).
+
+In PyTorch:
+
+```python
+criterion = nn.MSELoss()
+loss = criterion(reconstruction, original)
+```
+
+An alternative for images where pixel values are between 0 and 1 is **Binary Cross-Entropy (BCE)**:
+
+<script type="math/tex; mode=display">\mathcal{L} = -\frac{1}{n} \sum_{i=1}^{n} \left[ x_i \log \hat{x}_i + (1 - x_i) \log(1 - \hat{x}_i) \right]</script>
+
+BCE treats each pixel as a Bernoulli variable — "is this pixel on or off?" — and penalizes confident wrong predictions harshly. It often produces sharper reconstructions than MSE but requires a Sigmoid activation on the decoder's final layer (which we have).
+
+For simplicity, we use MSE. The reconstructions are blurrier than BCE would give, but the latent space structure is just as informative.
+
+---
+
+## The Dataset and Training
 
 We will use MNIST — sixty thousand handwritten digits, each 28×28 pixels. Every image is 784 numbers. We will compress them into 2.
 
@@ -134,17 +211,34 @@ model = Autoencoder(latent_dim=2)
 optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
 criterion = nn.MSELoss()
 
+epoch_losses = []
 for epoch in range(20):
+    total_loss = 0
     for images, _ in loader:
         recon, z = model(images)
         loss = criterion(recon, images.view(-1, 784))
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
-    print(f"Epoch {epoch+1}: loss = {loss.item():.4f}")
+        total_loss += loss.item()
+    avg = total_loss / len(loader)
+    epoch_losses.append(avg)
+    print(f"Epoch {epoch+1}: loss = {avg:.4f}")
 ```
 
 Twenty epochs. Runs on a laptop in about two minutes. No GPU required.
+
+---
+
+## Watching the Network Learn
+
+Each epoch, the network sees the entire training set once and adjusts its weights to reduce the loss. Here is what that looks like:
+
+<iframe src="/assets/charts/autoencoder-training-loss.html" style="width:100%;height:480px;border:none;"></iframe>
+
+The loss drops steeply in the first few epochs — the network is learning the obvious structure quickly. Then it flattens as the easy gains are exhausted and only the harder details remain.
+
+When do you stop? You watch the curve. When it flattens and the reconstructions look acceptable, you stop. There is no rule that says "twenty epochs." Twenty was a judgment call based on watching this particular curve. In practice you would also track the loss on a held-out **validation set** — if the training loss keeps dropping but the validation loss starts rising, you are overfitting and should stop.
 
 ---
 
@@ -170,6 +264,38 @@ The top row is the original. The bottom row is the reconstruction from just two 
 
 ---
 
+## What Is the Latent Space, Exactly?
+
+The latent space is the set of all points the encoder can produce — all possible compressions of all possible inputs.
+
+In our case it is two-dimensional, so it is literally a plane. Every digit from the test set maps to a point on that plane. The position is determined by the encoder's learned weights — it is not random, and it is not arbitrary.
+
+What makes the latent space interesting is its **geometry**. Because the network was trained to reconstruct inputs from their latent codes, similar inputs must map to similar codes — otherwise a small perturbation in the latent space would produce a wildly different reconstruction. The training pressure pushes related things together and unrelated things apart.
+
+This is why digits cluster without being told to. A "3" and another "3" produce similar pixel patterns, so the encoder has to give them similar latent codes in order to reconstruct both correctly from a single decoder. A "3" and a "7" produce very different patterns, so they end up far apart.
+
+Notice in the plot that some clusters overlap — "4" and "9" sit close together, as do "3" and "8". This makes sense: they share visual structure (loops, curved strokes). The two-dimensional space does not have enough room to separate everything cleanly, which is why 2D is good for visualization but a real application would use a larger latent dimension.
+
+---
+
+## What Is the Latent Space Used For?
+
+*"So we have this map,"* said Devorah. *"What do we actually do with it?"*
+
+Several things.
+
+**1. Compression and search.** Store the latent code instead of the original. A 2-number code instead of 784. To find similar images, compare codes — it is much faster than comparing full images pixel by pixel.
+
+**2. Anomaly detection.** Train the autoencoder on normal data. Then, for a new input, measure the reconstruction error. If the input is similar to what the network has seen, it will reconstruct it well. If it is unusual — a corrupted image, a fraud transaction, a machine behaving strangely — the reconstruction will be poor and the error will be high. High error = anomaly.
+
+**3. Interpolation.** Take the latent code of a "3" and the latent code of a "8". Average them. Decode the result. You get something that looks like a digit halfway between the two — a smoothly blended hallucination. This works because the latent space is continuous: nearby codes decode to similar-looking images.
+
+**4. Generation.** Sample a random point from the latent space. Decode it. You get a new image that looks like something the network has seen, but that never existed in the training data. This is the seed of the idea behind generative models — though a plain autoencoder is not very good at this. The latent space is not guaranteed to be smooth, so many random points decode to noise. The **Variational Autoencoder (VAE)** fixes this by explicitly shaping the latent space into a smooth distribution — but that is a story for another day.
+
+**5. Transfer learning.** The encoder, trained on one task, can be reused as a feature extractor for another. The latent representations it produces often generalize well, because learning to reconstruct forces the network to understand structure rather than memorize pixels.
+
+---
+
 ## The Limitation
 
 The autoencoder solves one problem very well: compress an image, reconstruct it later.
@@ -184,7 +310,7 @@ For sequences — text, speech, events in time — we need something that reads.
 
 *"We need the other guys,"* said Mathityahu.
 
-*[Continue to [Part 2 — The Scribe Reads the Room](/data-science/2026-07-03-attention-post/)]*
+*[Continue to [Part 2 — The Scribe Reads the Room](/machine-learning/2026-07-03-attention-post/)]*
 
 ---
 

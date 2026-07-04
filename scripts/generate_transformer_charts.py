@@ -80,6 +80,7 @@ def chart_autoencoder_latent_space():
     optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
     criterion = nn.MSELoss()
 
+    epoch_losses = []
     for epoch in range(20):
         total_loss = 0
         for images, _ in loader:
@@ -89,7 +90,9 @@ def chart_autoencoder_latent_space():
             loss.backward()
             optimizer.step()
             total_loss += loss.item()
-        print(f"    epoch {epoch + 1}/20  loss={total_loss / len(loader):.4f}")
+        avg = total_loss / len(loader)
+        epoch_losses.append(avg)
+        print(f"    epoch {epoch + 1}/20  loss={avg:.4f}")
 
     # Encode 5000 test samples
     test_data = datasets.MNIST("./data", train=False, download=True, transform=transform)
@@ -114,7 +117,30 @@ def chart_autoencoder_latent_space():
     fig.update_layout(legend_title_text="Digit")
     save(fig, "autoencoder-latent-space")
 
-    return model
+    return model, epoch_losses
+
+
+def chart_autoencoder_training_loss(epoch_losses):
+    """Plot training loss curve over epochs."""
+    print("Chart — Training loss curve")
+
+    epochs = list(range(1, len(epoch_losses) + 1))
+
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(
+        x=epochs, y=epoch_losses,
+        mode="lines+markers",
+        line=dict(color="#4fb1ba", width=2.5),
+        marker=dict(size=7, color="#4fb1ba"),
+        name="Training Loss",
+    ))
+    fig.update_layout(
+        title="Training Loss — The Network Gets Less Wrong Every Epoch",
+        xaxis_title="Epoch",
+        yaxis_title="MSE Loss",
+        showlegend=False,
+    )
+    save(fig, "autoencoder-training-loss")
 
 
 def chart_autoencoder_reconstructions(model):
@@ -234,7 +260,8 @@ def chart_positional_encoding():
 
 if __name__ == "__main__":
     print("\nGenerating transformer series charts...\n")
-    model = chart_autoencoder_latent_space()
+    model, losses = chart_autoencoder_latent_space()
+    chart_autoencoder_training_loss(losses)
     chart_autoencoder_reconstructions(model)
     chart_attention_heatmap()
     chart_positional_encoding()
