@@ -181,6 +181,47 @@ This is not programmed. It is learned.
 
 ---
 
+## How Did It Learn That?
+
+*"But wait,"* said Devorah, who had been watching over Mathityahu's shoulder. *"In that chart — 'ball' is already looking at 'matzah.' How does it know to do that? Someone told it?"*
+
+Nobody told it. It learned.
+
+Here is what training looks like. You give the model a task it can be wrong about. The simplest one: **predict the next word**.
+
+Feed in *"The bubbe made matzah ball"* — five tokens. The model produces a probability distribution over the entire vocabulary for what comes next. If it says *"lamp"* and the correct answer is *"soup"*, that is wrong. You measure how wrong — with **cross-entropy loss**:
+
+<script type="math/tex; mode=display">\mathcal{L} = -\log P(\text{soup})</script>
+
+The lower the probability the model assigned to the correct word, the higher the loss. Then you backpropagate — the gradient flows backward through the softmax, through the attention weights, all the way back into the Q, K, and V projection matrices.
+
+At the start of training, those matrices are random. *"ball"* attends to *"The"* just as much as it attends to *"matzah."* The attention map looks like television static.
+
+```python
+criterion = nn.CrossEntropyLoss()
+
+# logits: (batch, seq_len, vocab_size) — model's predictions at each position
+# targets: (batch, seq_len) — the actual next tokens
+logits = model(input_tokens)
+loss = criterion(
+    logits.view(-1, vocab_size),
+    targets.view(-1)
+)
+
+loss.backward()
+optimizer.step()
+```
+
+Over millions of sentences, the gradient keeps nudging the matrices in the same direction: make *"ball"* look at *"matzah,"* because that pattern reliably predicts *"soup."* Make *"made"* look at *"bubbe,"* because verbs need their subjects to predict correctly.
+
+Nobody programmed those relationships. The task demanded them. The loss enforced them.
+
+*"So the attention map is the network's notes,"* said Devorah. *"What it had to learn to get the answers right."*
+
+*"Exactly,"* said Mathityahu. *"And it takes a lot of sentences."*
+
+---
+
 ## The Remaining Problem
 
 Rivka could track fourteen conversations, but she knew *who said what when*. The words arrived in order. She knew which story came first.
