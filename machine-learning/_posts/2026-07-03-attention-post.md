@@ -40,11 +40,15 @@ This is the bottleneck. Not size this time — time. The information has to trav
 
 Self-attention abandons the sequential constraint entirely. Instead of passing information down a chain, every token looks at every other token directly and decides for itself what to pay attention to.
 
-Take the sentence: *"The bubbe made matzah ball soup again."*
+But before any of that, the model needs to convert words into numbers. A neural network cannot operate on the word *"matzah"* — it needs a vector. So each word in the vocabulary is mapped to a fixed-length list of numbers, say 512 of them, called an **embedding**. These embeddings are learned during training. Words that appear in similar contexts end up with similar embeddings — *"matzah"* and *"bread"* will be closer together than *"matzah"* and *"accountant."*
 
-When the model is processing the word *"ball,"* it needs context. *"Ball"* alone could mean anything — basketball, formal dance, a good time. What resolves the ambiguity is *"matzah,"* two positions back. Self-attention lets *"ball"* reach directly to *"matzah"* and borrow meaning from it. No chain. No fading memory. A direct connection.
+So the input to self-attention is not words. It is a sequence of vectors — one per token, each 512 numbers long. For the sentence *"The bubbe made matzah ball soup again,"* that is seven vectors sitting side by side.
 
-Here is how that works mechanically. Each token is first converted into three vectors:
+Now the attention mechanism has something to work with.
+
+Take the word *"ball."* It needs context. *"Ball"* alone could mean anything — basketball, formal dance, a good time. What resolves the ambiguity is *"matzah,"* two positions back. Self-attention lets *"ball"* reach directly to *"matzah"* and borrow meaning from it. No chain. No fading memory. A direct connection.
+
+Here is how. Each embedding is projected into three new vectors through learned weight matrices:
 
 **Query** — what this token is looking for. *"Ball"* generates a Query that is, roughly, asking: *"Is there a food-type modifier nearby that would tell me what kind of ball I am?"*
 
