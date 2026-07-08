@@ -60,11 +60,75 @@ The model computes a score between *"ball"*'s Query and every other token's Key.
 
 The output for *"ball"* is now a blend of the whole sentence, leaning heavily toward *"matzah."* It knows what kind of ball it is.
 
-Mathematically:
+Mathematically, for a single head:
 
 <script type="math/tex; mode=display">\text{Attention}(Q, K, V) = \text{softmax}\!\left(\frac{QK^\top}{\sqrt{d_k}}\right)V</script>
 
 The √d scaling keeps the dot products from getting too large and pushing the softmax into a regime where one score dominates everything and the gradients vanish. A technical nuisance, not a deep idea.
+
+<div style="overflow-x:auto;margin:2rem 0;">
+<svg viewBox="0 0 500 320" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:500px;display:block;margin:auto;font-family:sans-serif;">
+  <defs>
+    <marker id="sha" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto">
+      <path d="M0,7 L3.5,0 L7,7 z" fill="#aaa"/>
+    </marker>
+  </defs>
+
+  <!-- OUTPUT Z -->
+  <rect x="200" y="8" width="100" height="28" rx="5" fill="#4fb1ba"/>
+  <text x="250" y="27" text-anchor="middle" fill="white" font-size="13" font-weight="bold">Z</text>
+
+  <!-- Attention → Z -->
+  <line x1="250" y1="68" x2="250" y2="36" stroke="#bbb" stroke-width="1.5" marker-end="url(#sha)"/>
+
+  <!-- ATTENTION BLOCK -->
+  <rect x="60" y="68" width="380" height="36" rx="5" fill="#9b7fd4" opacity="0.75"/>
+  <text x="250" y="83" text-anchor="middle" fill="white" font-size="11" font-weight="bold">Scaled Dot-Product Attention</text>
+  <text x="250" y="97" text-anchor="middle" fill="white" font-size="10">softmax( QKᵀ / √d ) · V</text>
+
+  <!-- Q K V labels -->
+  <line x1="130" y1="104" x2="130" y2="120" stroke="#bbb" stroke-width="1.1"/>
+  <line x1="250" y1="104" x2="250" y2="120" stroke="#bbb" stroke-width="1.1"/>
+  <line x1="370" y1="104" x2="370" y2="120" stroke="#bbb" stroke-width="1.1"/>
+  <text x="130" y="130" text-anchor="middle" fill="#e8a95c" font-size="12" font-weight="bold">Q</text>
+  <text x="250" y="130" text-anchor="middle" fill="#e8a95c" font-size="12" font-weight="bold">K</text>
+  <text x="370" y="130" text-anchor="middle" fill="#e8a95c" font-size="12" font-weight="bold">V</text>
+
+  <!-- Linear boxes -->
+  <line x1="130" y1="132" x2="130" y2="142" stroke="#bbb" stroke-width="1.1" marker-end="url(#sha)"/>
+  <rect x="80" y="142" width="100" height="27" rx="4" fill="#e8a95c" opacity="0.85"/>
+  <text x="130" y="154" text-anchor="middle" fill="white" font-size="10" font-weight="bold">W_Q</text>
+  <text x="130" y="164" text-anchor="middle" fill="white" font-size="9">Linear</text>
+
+  <line x1="250" y1="132" x2="250" y2="142" stroke="#bbb" stroke-width="1.1" marker-end="url(#sha)"/>
+  <rect x="200" y="142" width="100" height="27" rx="4" fill="#e8a95c" opacity="0.85"/>
+  <text x="250" y="154" text-anchor="middle" fill="white" font-size="10" font-weight="bold">W_K</text>
+  <text x="250" y="164" text-anchor="middle" fill="white" font-size="9">Linear</text>
+
+  <line x1="370" y1="132" x2="370" y2="142" stroke="#bbb" stroke-width="1.1" marker-end="url(#sha)"/>
+  <rect x="320" y="142" width="100" height="27" rx="4" fill="#e8a95c" opacity="0.85"/>
+  <text x="370" y="154" text-anchor="middle" fill="white" font-size="10" font-weight="bold">W_V</text>
+  <text x="370" y="164" text-anchor="middle" fill="white" font-size="9">Linear</text>
+
+  <!-- Bus to X -->
+  <line x1="130" y1="169" x2="130" y2="220" stroke="#bbb" stroke-width="1.1"/>
+  <line x1="250" y1="169" x2="250" y2="220" stroke="#bbb" stroke-width="1.1"/>
+  <line x1="370" y1="169" x2="370" y2="220" stroke="#bbb" stroke-width="1.1"/>
+  <line x1="130" y1="220" x2="370" y2="220" stroke="#bbb" stroke-width="1.5"/>
+
+  <!-- X input -->
+  <line x1="250" y1="248" x2="250" y2="222" stroke="#bbb" stroke-width="1.5" marker-end="url(#sha)"/>
+  <rect x="190" y="248" width="120" height="28" rx="5" fill="#4fb1ba"/>
+  <text x="250" y="267" text-anchor="middle" fill="white" font-size="13" font-weight="bold">X</text>
+  <text x="250" y="290" text-anchor="middle" fill="#888" font-size="10">input embeddings</text>
+</svg>
+</div>
+
+One attention head produces one perspective on the sentence — one particular notion of what is relevant to what. That is already powerful. But language carries multiple kinds of relationships simultaneously. *"The bubbe made matzah ball soup again"* — one head might notice that *"made"* attends to *"bubbe"* (verb to subject). Another might notice that *"ball"* attends to *"matzah"* (noun to modifier). A third might notice that *"again"* attends to *"made"* (adverb to the verb it modifies). No single head can learn all of this at once without the relationships interfering with each other.
+
+*"So run it multiple times,"* said Devorah.
+
+Exactly. **Multi-head attention** runs h independent attention operations in parallel, each with its own W_Q, W_K, W_V matrices. Each head attends to the sentence through a different learned lens. Then the h outputs are concatenated and passed through one final linear layer W_O to produce the result.
 
 <div style="overflow-x:auto;margin:2rem 0;">
 <svg viewBox="0 0 700 400" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:700px;display:block;margin:auto;font-family:sans-serif;">
