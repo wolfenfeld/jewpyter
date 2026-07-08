@@ -38,21 +38,29 @@ This is the bottleneck. Not size this time — time. The information has to trav
 
 ## The Fix: Look at Everything at Once
 
-Self-attention abandons the sequential constraint entirely. Every position in the sequence can attend directly to every other position. No chain. No degradation.
+Self-attention abandons the sequential constraint entirely. Instead of passing information down a chain, every token looks at every other token directly and decides for itself what to pay attention to.
 
-For each token in the sequence, we ask three questions:
+Take the sentence: *"The bubbe made matzah ball soup again."*
 
-- **What am I looking for?** → the Query
-- **What do I have to offer?** → the Key
-- **What information do I actually carry?** → the Value
+When the model is processing the word *"ball,"* it needs context. *"Ball"* alone could mean anything — basketball, formal dance, a good time. What resolves the ambiguity is *"matzah,"* two positions back. Self-attention lets *"ball"* reach directly to *"matzah"* and borrow meaning from it. No chain. No fading memory. A direct connection.
 
-Each token produces a Query, a Key, and a Value — three vectors, each a learned projection of the token's embedding. Then:
+Here is how that works mechanically. Each token is first converted into three vectors:
 
-1. Compute how much each Query matches each Key (dot product, scaled by √d)
-2. Turn those scores into weights with softmax
-3. Take a weighted sum of all Values
+**Query** — what this token is looking for. *"Ball"* generates a Query that is, roughly, asking: *"Is there a food-type modifier nearby that would tell me what kind of ball I am?"*
 
-The result: each token gets a new representation that is a blend of *all other tokens*, weighted by relevance.
+**Key** — what this token is advertising. *"Matzah"* generates a Key that says: *"I am a type of food, specifically unleavened bread, relevant to compound nouns."*
+
+**Value** — the actual information to hand over if selected. *"Matzah"*'s Value is its full embedding — the meaning it carries.
+
+The model computes a score between *"ball"*'s Query and every other token's Key. Where Query and Key align, the score is high. *"Ball"* scores high against *"matzah"* and low against *"again"* and *"The."* Those scores are turned into weights with softmax — they add up to 1.0, like a probability distribution over the sentence. Then the model takes a weighted sum of all the Values, with *"matzah"*'s Value contributing most.
+
+The output for *"ball"* is now a blend of the whole sentence, leaning heavily toward *"matzah."* It knows what kind of ball it is.
+
+Mathematically:
+
+<script type="math/tex; mode=display">\text{Attention}(Q, K, V) = \text{softmax}\!\left(\frac{QK^\top}{\sqrt{d_k}}\right)V</script>
+
+The √d scaling keeps the dot products from getting too large and pushing the softmax into a regime where one score dominates everything and the gradients vanish. A technical nuisance, not a deep idea.
 
 <div style="overflow-x:auto;margin:2rem 0;">
 <svg viewBox="0 0 680 310" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:680px;display:block;margin:auto;font-family:sans-serif;">
