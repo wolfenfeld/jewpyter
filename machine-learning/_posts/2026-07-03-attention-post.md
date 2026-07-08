@@ -67,66 +67,133 @@ Mathematically:
 The √d scaling keeps the dot products from getting too large and pushing the softmax into a regime where one score dominates everything and the gradients vanish. A technical nuisance, not a deep idea.
 
 <div style="overflow-x:auto;margin:2rem 0;">
-<svg viewBox="0 0 680 310" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:680px;display:block;margin:auto;font-family:sans-serif;">
-
-  <!-- Input embeddings -->
-  <rect x="10" y="120" width="70" height="36" rx="5" fill="#4fb1ba" opacity="0.8"/>
-  <text x="45" y="143" text-anchor="middle" fill="white" font-size="11" font-weight="bold">Input x</text>
-
-  <!-- Three projection lines -->
-  <line x1="80" y1="128" x2="160" y2="80" stroke="#aaa" stroke-width="1.2" stroke-dasharray="4,3"/>
-  <line x1="80" y1="138" x2="160" y2="138" stroke="#aaa" stroke-width="1.2" stroke-dasharray="4,3"/>
-  <line x1="80" y1="148" x2="160" y2="200" stroke="#aaa" stroke-width="1.2" stroke-dasharray="4,3"/>
-
-  <!-- Q box -->
-  <rect x="160" y="62" width="60" height="32" rx="5" fill="#e8a95c"/>
-  <text x="190" y="83" text-anchor="middle" fill="white" font-size="12" font-weight="bold">Q</text>
-  <text x="190" y="52" text-anchor="middle" fill="#e8a95c" font-size="10">Query</text>
-
-  <!-- K box -->
-  <rect x="160" y="122" width="60" height="32" rx="5" fill="#e8a95c"/>
-  <text x="190" y="143" text-anchor="middle" fill="white" font-size="12" font-weight="bold">K</text>
-  <text x="190" y="112" text-anchor="middle" fill="#e8a95c" font-size="10">Key</text>
-
-  <!-- V box -->
-  <rect x="160" y="184" width="60" height="32" rx="5" fill="#e8a95c"/>
-  <text x="190" y="205" text-anchor="middle" fill="white" font-size="12" font-weight="bold">V</text>
-  <text x="190" y="230" text-anchor="middle" fill="#e8a95c" font-size="10">Value</text>
-
-  <!-- QK dot product -->
-  <line x1="220" y1="78" x2="290" y2="120" stroke="#aaa" stroke-width="1.2"/>
-  <line x1="220" y1="138" x2="290" y2="138" stroke="#aaa" stroke-width="1.2"/>
-
-  <rect x="290" y="108" width="90" height="40" rx="5" fill="#9b7fd4" opacity="0.85"/>
-  <text x="335" y="133" text-anchor="middle" fill="white" font-size="10" font-weight="bold">QKᵀ / √d</text>
-
-  <!-- Softmax -->
-  <line x1="380" y1="128" x2="430" y2="128" stroke="#aaa" stroke-width="1.2" marker-end="url(#arr2)"/>
-  <rect x="430" y="108" width="80" height="40" rx="5" fill="#9b7fd4" opacity="0.7"/>
-  <text x="470" y="133" text-anchor="middle" fill="white" font-size="10" font-weight="bold">softmax</text>
-  <text x="470" y="100" text-anchor="middle" fill="#9b7fd4" font-size="10">weights</text>
-
-  <!-- Multiply by V -->
-  <line x1="510" y1="128" x2="545" y2="160" stroke="#aaa" stroke-width="1.2"/>
-  <line x1="220" y1="200" x2="545" y2="175" stroke="#aaa" stroke-width="1.2" stroke-dasharray="3,3"/>
-
-  <circle cx="555" cy="175" r="14" fill="#4fb1ba" opacity="0.85"/>
-  <text x="555" y="180" text-anchor="middle" fill="white" font-size="14" font-weight="bold">×</text>
-
-  <!-- Output -->
-  <line x1="569" y1="175" x2="610" y2="175" stroke="#aaa" stroke-width="1.2" marker-end="url(#arr2)"/>
-  <rect x="610" y="158" width="60" height="32" rx="5" fill="#4fb1ba"/>
-  <text x="640" y="179" text-anchor="middle" fill="white" font-size="11" font-weight="bold">Output</text>
-
+<svg viewBox="0 0 700 400" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:700px;display:block;margin:auto;font-family:sans-serif;">
   <defs>
-    <marker id="arr2" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto">
-      <path d="M0,0 L0,6 L7,3 z" fill="#aaa"/>
+    <marker id="mha" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto">
+      <path d="M0,7 L3.5,0 L7,7 z" fill="#aaa"/>
     </marker>
   </defs>
+
+  <!-- OUTPUT -->
+  <rect x="300" y="8" width="100" height="28" rx="5" fill="#4fb1ba"/>
+  <text x="350" y="27" text-anchor="middle" fill="white" font-size="13" font-weight="bold">Z</text>
+  <text x="415" y="26" fill="#888" font-size="10" font-style="italic">output</text>
+
+  <!-- W_O → Z -->
+  <line x1="350" y1="63" x2="350" y2="36" stroke="#bbb" stroke-width="1.5" marker-end="url(#mha)"/>
+
+  <!-- W_O -->
+  <rect x="185" y="63" width="330" height="27" rx="5" fill="#e8a95c"/>
+  <text x="350" y="81" text-anchor="middle" fill="white" font-size="11" font-weight="bold">W_O · Linear</text>
+
+  <!-- Concat → W_O -->
+  <line x1="350" y1="112" x2="350" y2="90" stroke="#bbb" stroke-width="1.5" marker-end="url(#mha)"/>
+
+  <!-- CONCATENATION -->
+  <rect x="22" y="112" width="656" height="27" rx="5" fill="#9b7fd4" opacity="0.82"/>
+  <text x="350" y="130" text-anchor="middle" fill="white" font-size="11" font-weight="bold">Concatenate  [ Z₁ ,  Z₂ ,  · · · ,  Zₕ ]</text>
+
+  <!-- Z1 label and line -->
+  <line x1="145" y1="153" x2="145" y2="139" stroke="#bbb" stroke-width="1.2" marker-end="url(#mha)"/>
+  <text x="145" y="163" text-anchor="middle" fill="#9b7fd4" font-size="12" font-weight="bold">Z₁</text>
+
+  <!-- Zh label and line -->
+  <line x1="555" y1="153" x2="555" y2="139" stroke="#bbb" stroke-width="1.2" marker-end="url(#mha)"/>
+  <text x="555" y="163" text-anchor="middle" fill="#9b7fd4" font-size="12" font-weight="bold">Zₕ</text>
+
+  <!-- dots between Z labels -->
+  <text x="350" y="162" text-anchor="middle" fill="#ccc" font-size="18">· · ·</text>
+
+  <!-- ATTENTION HEAD 1 → Z1 -->
+  <line x1="145" y1="175" x2="145" y2="166" stroke="#bbb" stroke-width="1.2" marker-end="url(#mha)"/>
+
+  <!-- ATTENTION BLOCK HEAD 1 -->
+  <rect x="22" y="175" width="246" height="36" rx="5" fill="#9b7fd4" opacity="0.6"/>
+  <text x="145" y="190" text-anchor="middle" fill="white" font-size="10" font-weight="bold">Scaled Dot-Product</text>
+  <text x="145" y="204" text-anchor="middle" fill="white" font-size="10">Attention — head 1</text>
+
+  <!-- ATTENTION HEAD h → Zh -->
+  <line x1="555" y1="175" x2="555" y2="166" stroke="#bbb" stroke-width="1.2" marker-end="url(#mha)"/>
+
+  <!-- ATTENTION BLOCK HEAD h -->
+  <rect x="432" y="175" width="246" height="36" rx="5" fill="#9b7fd4" opacity="0.6"/>
+  <text x="555" y="190" text-anchor="middle" fill="white" font-size="10" font-weight="bold">Scaled Dot-Product</text>
+  <text x="555" y="204" text-anchor="middle" fill="white" font-size="10">Attention — head h</text>
+
+  <!-- dots between attention blocks -->
+  <text x="350" y="198" text-anchor="middle" fill="#ccc" font-size="18">· · ·</text>
+
+  <!-- Q K V labels head 1 -->
+  <line x1="63" y1="211" x2="63" y2="224" stroke="#bbb" stroke-width="1.1"/>
+  <line x1="145" y1="211" x2="145" y2="224" stroke="#bbb" stroke-width="1.1"/>
+  <line x1="227" y1="211" x2="227" y2="224" stroke="#bbb" stroke-width="1.1"/>
+  <text x="63"  y="234" text-anchor="middle" fill="#e8a95c" font-size="11" font-weight="bold">Q₁</text>
+  <text x="145" y="234" text-anchor="middle" fill="#e8a95c" font-size="11" font-weight="bold">K₁</text>
+  <text x="227" y="234" text-anchor="middle" fill="#e8a95c" font-size="11" font-weight="bold">V₁</text>
+
+  <!-- Q K V labels head h -->
+  <line x1="473" y1="211" x2="473" y2="224" stroke="#bbb" stroke-width="1.1"/>
+  <line x1="555" y1="211" x2="555" y2="224" stroke="#bbb" stroke-width="1.1"/>
+  <line x1="637" y1="211" x2="637" y2="224" stroke="#bbb" stroke-width="1.1"/>
+  <text x="473" y="234" text-anchor="middle" fill="#e8a95c" font-size="11" font-weight="bold">Qₕ</text>
+  <text x="555" y="234" text-anchor="middle" fill="#e8a95c" font-size="11" font-weight="bold">Kₕ</text>
+  <text x="637" y="234" text-anchor="middle" fill="#e8a95c" font-size="11" font-weight="bold">Vₕ</text>
+
+  <!-- LINEAR BOXES HEAD 1 -->
+  <line x1="63"  y1="236" x2="63"  y2="244" stroke="#bbb" stroke-width="1.1" marker-end="url(#mha)"/>
+  <rect x="22"  y="244" width="82" height="27" rx="4" fill="#e8a95c" opacity="0.85"/>
+  <text x="63"  y="256" text-anchor="middle" fill="white" font-size="9" font-weight="bold">W_Q,1</text>
+  <text x="63"  y="266" text-anchor="middle" fill="white" font-size="8">Linear</text>
+
+  <line x1="145" y1="236" x2="145" y2="244" stroke="#bbb" stroke-width="1.1" marker-end="url(#mha)"/>
+  <rect x="104" y="244" width="82" height="27" rx="4" fill="#e8a95c" opacity="0.85"/>
+  <text x="145" y="256" text-anchor="middle" fill="white" font-size="9" font-weight="bold">W_K,1</text>
+  <text x="145" y="266" text-anchor="middle" fill="white" font-size="8">Linear</text>
+
+  <line x1="227" y1="236" x2="227" y2="244" stroke="#bbb" stroke-width="1.1" marker-end="url(#mha)"/>
+  <rect x="186" y="244" width="82" height="27" rx="4" fill="#e8a95c" opacity="0.85"/>
+  <text x="227" y="256" text-anchor="middle" fill="white" font-size="9" font-weight="bold">W_V,1</text>
+  <text x="227" y="266" text-anchor="middle" fill="white" font-size="8">Linear</text>
+
+  <!-- LINEAR BOXES HEAD h -->
+  <line x1="473" y1="236" x2="473" y2="244" stroke="#bbb" stroke-width="1.1" marker-end="url(#mha)"/>
+  <rect x="432" y="244" width="82" height="27" rx="4" fill="#e8a95c" opacity="0.85"/>
+  <text x="473" y="256" text-anchor="middle" fill="white" font-size="9" font-weight="bold">W_Q,h</text>
+  <text x="473" y="266" text-anchor="middle" fill="white" font-size="8">Linear</text>
+
+  <line x1="555" y1="236" x2="555" y2="244" stroke="#bbb" stroke-width="1.1" marker-end="url(#mha)"/>
+  <rect x="514" y="244" width="82" height="27" rx="4" fill="#e8a95c" opacity="0.85"/>
+  <text x="555" y="256" text-anchor="middle" fill="white" font-size="9" font-weight="bold">W_K,h</text>
+  <text x="555" y="266" text-anchor="middle" fill="white" font-size="8">Linear</text>
+
+  <line x1="637" y1="236" x2="637" y2="244" stroke="#bbb" stroke-width="1.1" marker-end="url(#mha)"/>
+  <rect x="596" y="244" width="82" height="27" rx="4" fill="#e8a95c" opacity="0.85"/>
+  <text x="637" y="256" text-anchor="middle" fill="white" font-size="9" font-weight="bold">W_V,h</text>
+  <text x="637" y="266" text-anchor="middle" fill="white" font-size="8">Linear</text>
+
+  <!-- dots between linear groups -->
+  <text x="350" y="261" text-anchor="middle" fill="#ccc" font-size="18">· · ·</text>
+
+  <!-- Vertical drops from linear boxes to bus -->
+  <line x1="63"  y1="271" x2="63"  y2="312" stroke="#bbb" stroke-width="1.1"/>
+  <line x1="145" y1="271" x2="145" y2="312" stroke="#bbb" stroke-width="1.1"/>
+  <line x1="227" y1="271" x2="227" y2="312" stroke="#bbb" stroke-width="1.1"/>
+  <line x1="473" y1="271" x2="473" y2="312" stroke="#bbb" stroke-width="1.1"/>
+  <line x1="555" y1="271" x2="555" y2="312" stroke="#bbb" stroke-width="1.1"/>
+  <line x1="637" y1="271" x2="637" y2="312" stroke="#bbb" stroke-width="1.1"/>
+
+  <!-- Horizontal bus -->
+  <line x1="63" y1="312" x2="637" y2="312" stroke="#bbb" stroke-width="1.5"/>
+
+  <!-- X input box -->
+  <line x1="350" y1="340" x2="350" y2="314" stroke="#bbb" stroke-width="1.5" marker-end="url(#mha)"/>
+  <rect x="295" y="340" width="110" height="28" rx="5" fill="#4fb1ba"/>
+  <text x="350" y="359" text-anchor="middle" fill="white" font-size="13" font-weight="bold">X</text>
+  <text x="350" y="382" text-anchor="middle" fill="#888" font-size="10">input embeddings</text>
 </svg>
 </div>
 
-The key insight: the weights are not fixed. They are computed fresh for every input. A word that is relevant to the current token gets a high weight. A word that is irrelevant gets a low weight. The network *learns* what relevance means.
+The key insight: the weights are not fixed. They are computed fresh for every input. Each head learns to look for *different* kinds of relationships — one head might learn syntax (verbs attending to their subjects), another semantics (nouns attending to modifiers). The network *learns* what relevance means, independently, in parallel, eight times over.
 
 ---
 
