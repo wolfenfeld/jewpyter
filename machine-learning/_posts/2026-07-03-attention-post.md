@@ -67,60 +67,67 @@ Mathematically, for a single head:
 The √d scaling keeps the dot products from getting too large and pushing the softmax into a regime where one score dominates everything and the gradients vanish. A technical nuisance, not a deep idea.
 
 <div style="overflow-x:auto;margin:2rem 0;">
-<svg viewBox="0 0 500 320" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:500px;display:block;margin:auto;font-family:sans-serif;">
+<svg viewBox="0 0 500 305" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:500px;display:block;margin:auto;font-family:sans-serif;">
   <defs>
-    <marker id="sha" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto">
-      <path d="M0,7 L3.5,0 L7,7 z" fill="#aaa"/>
+    <marker id="sha" markerWidth="9" markerHeight="6" refX="9" refY="3" orient="auto">
+      <polygon points="0 0, 9 3, 0 6" fill="#aaa"/>
     </marker>
   </defs>
 
-  <!-- OUTPUT Z -->
+  <!-- Z output: y=8–36 -->
   <rect x="200" y="8" width="100" height="28" rx="5" fill="#4fb1ba"/>
   <text x="250" y="27" text-anchor="middle" fill="white" font-size="13" font-weight="bold">Z</text>
 
-  <!-- Attention → Z -->
-  <line x1="250" y1="68" x2="250" y2="36" stroke="#bbb" stroke-width="1.5" marker-end="url(#sha)"/>
+  <!-- Attention top (y=68) → Z bottom (y=36): upward, arrow points into Z -->
+  <line x1="250" y1="68" x2="250" y2="37" stroke="#bbb" stroke-width="1.5" marker-end="url(#sha)"/>
 
-  <!-- ATTENTION BLOCK -->
+  <!-- Attention block: y=68–104 -->
   <rect x="60" y="68" width="380" height="36" rx="5" fill="#9b7fd4" opacity="0.75"/>
   <text x="250" y="83" text-anchor="middle" fill="white" font-size="11" font-weight="bold">Scaled Dot-Product Attention</text>
   <text x="250" y="97" text-anchor="middle" fill="white" font-size="10">softmax( QKᵀ / √d ) · V</text>
 
-  <!-- Q K V labels -->
-  <line x1="130" y1="104" x2="130" y2="120" stroke="#bbb" stroke-width="1.1"/>
-  <line x1="250" y1="104" x2="250" y2="120" stroke="#bbb" stroke-width="1.1"/>
-  <line x1="370" y1="104" x2="370" y2="120" stroke="#bbb" stroke-width="1.1"/>
-  <text x="130" y="130" text-anchor="middle" fill="#e8a95c" font-size="12" font-weight="bold">Q</text>
-  <text x="250" y="130" text-anchor="middle" fill="#e8a95c" font-size="12" font-weight="bold">K</text>
-  <text x="370" y="130" text-anchor="middle" fill="#e8a95c" font-size="12" font-weight="bold">V</text>
+  <!-- Stubs: attention bottom (y=104) down to Q/K/V label area (no arrows, just connectors) -->
+  <line x1="130" y1="104" x2="130" y2="116" stroke="#bbb" stroke-width="1.1"/>
+  <line x1="250" y1="104" x2="250" y2="116" stroke="#bbb" stroke-width="1.1"/>
+  <line x1="370" y1="104" x2="370" y2="116" stroke="#bbb" stroke-width="1.1"/>
 
-  <!-- Linear boxes -->
-  <line x1="130" y1="132" x2="130" y2="142" stroke="#bbb" stroke-width="1.1" marker-end="url(#sha)"/>
-  <rect x="80" y="142" width="100" height="27" rx="4" fill="#e8a95c" opacity="0.85"/>
-  <text x="130" y="154" text-anchor="middle" fill="white" font-size="10" font-weight="bold">W_Q</text>
-  <text x="130" y="164" text-anchor="middle" fill="white" font-size="9">Linear</text>
+  <!-- Q K V labels: baseline y=128 -->
+  <text x="130" y="128" text-anchor="middle" fill="#e8a95c" font-size="12" font-weight="bold">Q</text>
+  <text x="250" y="128" text-anchor="middle" fill="#e8a95c" font-size="12" font-weight="bold">K</text>
+  <text x="370" y="128" text-anchor="middle" fill="#e8a95c" font-size="12" font-weight="bold">V</text>
 
-  <line x1="250" y1="132" x2="250" y2="142" stroke="#bbb" stroke-width="1.1" marker-end="url(#sha)"/>
-  <rect x="200" y="142" width="100" height="27" rx="4" fill="#e8a95c" opacity="0.85"/>
-  <text x="250" y="154" text-anchor="middle" fill="white" font-size="10" font-weight="bold">W_K</text>
-  <text x="250" y="164" text-anchor="middle" fill="white" font-size="9">Linear</text>
+  <!-- W boxes top (y=140) → Q/K/V labels (y=118): upward, arrow points into label -->
+  <line x1="130" y1="140" x2="130" y2="119" stroke="#bbb" stroke-width="1.1" marker-end="url(#sha)"/>
+  <line x1="250" y1="140" x2="250" y2="119" stroke="#bbb" stroke-width="1.1" marker-end="url(#sha)"/>
+  <line x1="370" y1="140" x2="370" y2="119" stroke="#bbb" stroke-width="1.1" marker-end="url(#sha)"/>
 
-  <line x1="370" y1="132" x2="370" y2="142" stroke="#bbb" stroke-width="1.1" marker-end="url(#sha)"/>
-  <rect x="320" y="142" width="100" height="27" rx="4" fill="#e8a95c" opacity="0.85"/>
-  <text x="370" y="154" text-anchor="middle" fill="white" font-size="10" font-weight="bold">W_V</text>
-  <text x="370" y="164" text-anchor="middle" fill="white" font-size="9">Linear</text>
+  <!-- W_Q / W_K / W_V boxes: y=140–167 -->
+  <rect x="80"  y="140" width="100" height="27" rx="4" fill="#e8a95c" opacity="0.85"/>
+  <text x="130" y="152" text-anchor="middle" fill="white" font-size="10" font-weight="bold">W_Q</text>
+  <text x="130" y="163" text-anchor="middle" fill="white" font-size="9">Linear</text>
 
-  <!-- Bus to X -->
-  <line x1="130" y1="169" x2="130" y2="220" stroke="#bbb" stroke-width="1.1"/>
-  <line x1="250" y1="169" x2="250" y2="220" stroke="#bbb" stroke-width="1.1"/>
-  <line x1="370" y1="169" x2="370" y2="220" stroke="#bbb" stroke-width="1.1"/>
-  <line x1="130" y1="220" x2="370" y2="220" stroke="#bbb" stroke-width="1.5"/>
+  <rect x="200" y="140" width="100" height="27" rx="4" fill="#e8a95c" opacity="0.85"/>
+  <text x="250" y="152" text-anchor="middle" fill="white" font-size="10" font-weight="bold">W_K</text>
+  <text x="250" y="163" text-anchor="middle" fill="white" font-size="9">Linear</text>
 
-  <!-- X input -->
-  <line x1="250" y1="248" x2="250" y2="222" stroke="#bbb" stroke-width="1.5" marker-end="url(#sha)"/>
-  <rect x="190" y="248" width="120" height="28" rx="5" fill="#4fb1ba"/>
-  <text x="250" y="267" text-anchor="middle" fill="white" font-size="13" font-weight="bold">X</text>
-  <text x="250" y="290" text-anchor="middle" fill="#888" font-size="10">input embeddings</text>
+  <rect x="320" y="140" width="100" height="27" rx="4" fill="#e8a95c" opacity="0.85"/>
+  <text x="370" y="152" text-anchor="middle" fill="white" font-size="10" font-weight="bold">W_V</text>
+  <text x="370" y="163" text-anchor="middle" fill="white" font-size="9">Linear</text>
+
+  <!-- Vertical drops from W boxes (y=167) down to bus (y=218) -->
+  <line x1="130" y1="167" x2="130" y2="218" stroke="#bbb" stroke-width="1.1"/>
+  <line x1="250" y1="167" x2="250" y2="218" stroke="#bbb" stroke-width="1.1"/>
+  <line x1="370" y1="167" x2="370" y2="218" stroke="#bbb" stroke-width="1.1"/>
+  <!-- Horizontal bus -->
+  <line x1="130" y1="218" x2="370" y2="218" stroke="#bbb" stroke-width="1.5"/>
+
+  <!-- X top (y=246) → bus (y=220): upward, arrow points into bus -->
+  <line x1="250" y1="246" x2="250" y2="220" stroke="#bbb" stroke-width="1.5" marker-end="url(#sha)"/>
+
+  <!-- X input: y=246–274 -->
+  <rect x="190" y="246" width="120" height="28" rx="5" fill="#4fb1ba"/>
+  <text x="250" y="265" text-anchor="middle" fill="white" font-size="13" font-weight="bold">X</text>
+  <text x="250" y="288" text-anchor="middle" fill="#888" font-size="10">input embeddings</text>
 </svg>
 </div>
 
@@ -131,114 +138,115 @@ One attention head produces one perspective on the sentence — one particular n
 Exactly. **Multi-head attention** runs h independent attention operations in parallel, each with its own W_Q, W_K, W_V matrices. Each head attends to the sentence through a different learned lens. Then the h outputs are concatenated and passed through one final linear layer W_O to produce the result.
 
 <div style="overflow-x:auto;margin:2rem 0;">
-<svg viewBox="0 0 700 400" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:700px;display:block;margin:auto;font-family:sans-serif;">
+<svg viewBox="0 0 700 395" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:700px;display:block;margin:auto;font-family:sans-serif;">
   <defs>
-    <marker id="mha" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto">
-      <path d="M0,7 L3.5,0 L7,7 z" fill="#aaa"/>
+    <marker id="mha" markerWidth="9" markerHeight="6" refX="9" refY="3" orient="auto">
+      <polygon points="0 0, 9 3, 0 6" fill="#aaa"/>
     </marker>
   </defs>
 
-  <!-- OUTPUT -->
+  <!-- Z output: y=8–36 -->
   <rect x="300" y="8" width="100" height="28" rx="5" fill="#4fb1ba"/>
   <text x="350" y="27" text-anchor="middle" fill="white" font-size="13" font-weight="bold">Z</text>
   <text x="415" y="26" fill="#888" font-size="10" font-style="italic">output</text>
 
-  <!-- W_O → Z -->
-  <line x1="350" y1="63" x2="350" y2="36" stroke="#bbb" stroke-width="1.5" marker-end="url(#mha)"/>
+  <!-- W_O top (y=63) → Z bottom (y=37): upward -->
+  <line x1="350" y1="63" x2="350" y2="37" stroke="#bbb" stroke-width="1.5" marker-end="url(#mha)"/>
 
-  <!-- W_O -->
+  <!-- W_O: y=63–90 -->
   <rect x="185" y="63" width="330" height="27" rx="5" fill="#e8a95c"/>
   <text x="350" y="81" text-anchor="middle" fill="white" font-size="11" font-weight="bold">W_O · Linear</text>
 
-  <!-- Concat → W_O -->
-  <line x1="350" y1="112" x2="350" y2="90" stroke="#bbb" stroke-width="1.5" marker-end="url(#mha)"/>
+  <!-- Concat top (y=112) → W_O bottom (y=91): upward -->
+  <line x1="350" y1="112" x2="350" y2="91" stroke="#bbb" stroke-width="1.5" marker-end="url(#mha)"/>
 
-  <!-- CONCATENATION -->
+  <!-- Concatenation: y=112–139 -->
   <rect x="22" y="112" width="656" height="27" rx="5" fill="#9b7fd4" opacity="0.82"/>
   <text x="350" y="130" text-anchor="middle" fill="white" font-size="11" font-weight="bold">Concatenate  [ Z₁ ,  Z₂ ,  · · · ,  Zₕ ]</text>
 
-  <!-- Z1 label and line -->
-  <line x1="145" y1="153" x2="145" y2="139" stroke="#bbb" stroke-width="1.2" marker-end="url(#mha)"/>
+  <!-- Z1 text (y=163) → concat bottom (y=140): upward -->
+  <line x1="145" y1="152" x2="145" y2="140" stroke="#bbb" stroke-width="1.2" marker-end="url(#mha)"/>
   <text x="145" y="163" text-anchor="middle" fill="#9b7fd4" font-size="12" font-weight="bold">Z₁</text>
 
-  <!-- Zh label and line -->
-  <line x1="555" y1="153" x2="555" y2="139" stroke="#bbb" stroke-width="1.2" marker-end="url(#mha)"/>
+  <!-- Zh text (y=163) → concat bottom (y=140): upward -->
+  <line x1="555" y1="152" x2="555" y2="140" stroke="#bbb" stroke-width="1.2" marker-end="url(#mha)"/>
   <text x="555" y="163" text-anchor="middle" fill="#9b7fd4" font-size="12" font-weight="bold">Zₕ</text>
 
-  <!-- dots between Z labels -->
   <text x="350" y="162" text-anchor="middle" fill="#ccc" font-size="18">· · ·</text>
 
-  <!-- ATTENTION HEAD 1 → Z1 -->
-  <line x1="145" y1="175" x2="145" y2="166" stroke="#bbb" stroke-width="1.2" marker-end="url(#mha)"/>
+  <!-- Attention head 1 top (y=175) → Z1 (y=165): upward -->
+  <line x1="145" y1="175" x2="145" y2="165" stroke="#bbb" stroke-width="1.2" marker-end="url(#mha)"/>
 
-  <!-- ATTENTION BLOCK HEAD 1 -->
+  <!-- Attention block head 1: y=175–211 -->
   <rect x="22" y="175" width="246" height="36" rx="5" fill="#9b7fd4" opacity="0.6"/>
   <text x="145" y="190" text-anchor="middle" fill="white" font-size="10" font-weight="bold">Scaled Dot-Product</text>
   <text x="145" y="204" text-anchor="middle" fill="white" font-size="10">Attention — head 1</text>
 
-  <!-- ATTENTION HEAD h → Zh -->
-  <line x1="555" y1="175" x2="555" y2="166" stroke="#bbb" stroke-width="1.2" marker-end="url(#mha)"/>
+  <!-- Attention head h top (y=175) → Zh (y=165): upward -->
+  <line x1="555" y1="175" x2="555" y2="165" stroke="#bbb" stroke-width="1.2" marker-end="url(#mha)"/>
 
-  <!-- ATTENTION BLOCK HEAD h -->
+  <!-- Attention block head h: y=175–211 -->
   <rect x="432" y="175" width="246" height="36" rx="5" fill="#9b7fd4" opacity="0.6"/>
   <text x="555" y="190" text-anchor="middle" fill="white" font-size="10" font-weight="bold">Scaled Dot-Product</text>
   <text x="555" y="204" text-anchor="middle" fill="white" font-size="10">Attention — head h</text>
 
-  <!-- dots between attention blocks -->
   <text x="350" y="198" text-anchor="middle" fill="#ccc" font-size="18">· · ·</text>
 
-  <!-- Q K V labels head 1 -->
-  <line x1="63" y1="211" x2="63" y2="224" stroke="#bbb" stroke-width="1.1"/>
-  <line x1="145" y1="211" x2="145" y2="224" stroke="#bbb" stroke-width="1.1"/>
-  <line x1="227" y1="211" x2="227" y2="224" stroke="#bbb" stroke-width="1.1"/>
-  <text x="63"  y="234" text-anchor="middle" fill="#e8a95c" font-size="11" font-weight="bold">Q₁</text>
-  <text x="145" y="234" text-anchor="middle" fill="#e8a95c" font-size="11" font-weight="bold">K₁</text>
-  <text x="227" y="234" text-anchor="middle" fill="#e8a95c" font-size="11" font-weight="bold">V₁</text>
+  <!-- Stubs: attention bottom (y=211) down to Q/K/V label area — no arrows -->
+  <line x1="63"  y1="211" x2="63"  y2="222" stroke="#bbb" stroke-width="1.1"/>
+  <line x1="145" y1="211" x2="145" y2="222" stroke="#bbb" stroke-width="1.1"/>
+  <line x1="227" y1="211" x2="227" y2="222" stroke="#bbb" stroke-width="1.1"/>
+  <line x1="473" y1="211" x2="473" y2="222" stroke="#bbb" stroke-width="1.1"/>
+  <line x1="555" y1="211" x2="555" y2="222" stroke="#bbb" stroke-width="1.1"/>
+  <line x1="637" y1="211" x2="637" y2="222" stroke="#bbb" stroke-width="1.1"/>
 
-  <!-- Q K V labels head h -->
-  <line x1="473" y1="211" x2="473" y2="224" stroke="#bbb" stroke-width="1.1"/>
-  <line x1="555" y1="211" x2="555" y2="224" stroke="#bbb" stroke-width="1.1"/>
-  <line x1="637" y1="211" x2="637" y2="224" stroke="#bbb" stroke-width="1.1"/>
-  <text x="473" y="234" text-anchor="middle" fill="#e8a95c" font-size="11" font-weight="bold">Qₕ</text>
-  <text x="555" y="234" text-anchor="middle" fill="#e8a95c" font-size="11" font-weight="bold">Kₕ</text>
-  <text x="637" y="234" text-anchor="middle" fill="#e8a95c" font-size="11" font-weight="bold">Vₕ</text>
+  <!-- Q K V labels head 1: baseline y=232 -->
+  <text x="63"  y="232" text-anchor="middle" fill="#e8a95c" font-size="11" font-weight="bold">Q₁</text>
+  <text x="145" y="232" text-anchor="middle" fill="#e8a95c" font-size="11" font-weight="bold">K₁</text>
+  <text x="227" y="232" text-anchor="middle" fill="#e8a95c" font-size="11" font-weight="bold">V₁</text>
 
-  <!-- LINEAR BOXES HEAD 1 -->
-  <line x1="63"  y1="236" x2="63"  y2="244" stroke="#bbb" stroke-width="1.1" marker-end="url(#mha)"/>
+  <!-- Q K V labels head h: baseline y=232 -->
+  <text x="473" y="232" text-anchor="middle" fill="#e8a95c" font-size="11" font-weight="bold">Qₕ</text>
+  <text x="555" y="232" text-anchor="middle" fill="#e8a95c" font-size="11" font-weight="bold">Kₕ</text>
+  <text x="637" y="232" text-anchor="middle" fill="#e8a95c" font-size="11" font-weight="bold">Vₕ</text>
+
+  <!-- W boxes top (y=244) → Q/K/V labels (y=234): upward, arrows point into labels -->
+  <line x1="63"  y1="244" x2="63"  y2="234" stroke="#bbb" stroke-width="1.1" marker-end="url(#mha)"/>
+  <line x1="145" y1="244" x2="145" y2="234" stroke="#bbb" stroke-width="1.1" marker-end="url(#mha)"/>
+  <line x1="227" y1="244" x2="227" y2="234" stroke="#bbb" stroke-width="1.1" marker-end="url(#mha)"/>
+  <line x1="473" y1="244" x2="473" y2="234" stroke="#bbb" stroke-width="1.1" marker-end="url(#mha)"/>
+  <line x1="555" y1="244" x2="555" y2="234" stroke="#bbb" stroke-width="1.1" marker-end="url(#mha)"/>
+  <line x1="637" y1="244" x2="637" y2="234" stroke="#bbb" stroke-width="1.1" marker-end="url(#mha)"/>
+
+  <!-- W linear boxes head 1: y=244–271 -->
   <rect x="22"  y="244" width="82" height="27" rx="4" fill="#e8a95c" opacity="0.85"/>
   <text x="63"  y="256" text-anchor="middle" fill="white" font-size="9" font-weight="bold">W_Q,1</text>
   <text x="63"  y="266" text-anchor="middle" fill="white" font-size="8">Linear</text>
 
-  <line x1="145" y1="236" x2="145" y2="244" stroke="#bbb" stroke-width="1.1" marker-end="url(#mha)"/>
   <rect x="104" y="244" width="82" height="27" rx="4" fill="#e8a95c" opacity="0.85"/>
   <text x="145" y="256" text-anchor="middle" fill="white" font-size="9" font-weight="bold">W_K,1</text>
   <text x="145" y="266" text-anchor="middle" fill="white" font-size="8">Linear</text>
 
-  <line x1="227" y1="236" x2="227" y2="244" stroke="#bbb" stroke-width="1.1" marker-end="url(#mha)"/>
   <rect x="186" y="244" width="82" height="27" rx="4" fill="#e8a95c" opacity="0.85"/>
   <text x="227" y="256" text-anchor="middle" fill="white" font-size="9" font-weight="bold">W_V,1</text>
   <text x="227" y="266" text-anchor="middle" fill="white" font-size="8">Linear</text>
 
-  <!-- LINEAR BOXES HEAD h -->
-  <line x1="473" y1="236" x2="473" y2="244" stroke="#bbb" stroke-width="1.1" marker-end="url(#mha)"/>
+  <!-- W linear boxes head h: y=244–271 -->
   <rect x="432" y="244" width="82" height="27" rx="4" fill="#e8a95c" opacity="0.85"/>
   <text x="473" y="256" text-anchor="middle" fill="white" font-size="9" font-weight="bold">W_Q,h</text>
   <text x="473" y="266" text-anchor="middle" fill="white" font-size="8">Linear</text>
 
-  <line x1="555" y1="236" x2="555" y2="244" stroke="#bbb" stroke-width="1.1" marker-end="url(#mha)"/>
   <rect x="514" y="244" width="82" height="27" rx="4" fill="#e8a95c" opacity="0.85"/>
   <text x="555" y="256" text-anchor="middle" fill="white" font-size="9" font-weight="bold">W_K,h</text>
   <text x="555" y="266" text-anchor="middle" fill="white" font-size="8">Linear</text>
 
-  <line x1="637" y1="236" x2="637" y2="244" stroke="#bbb" stroke-width="1.1" marker-end="url(#mha)"/>
   <rect x="596" y="244" width="82" height="27" rx="4" fill="#e8a95c" opacity="0.85"/>
   <text x="637" y="256" text-anchor="middle" fill="white" font-size="9" font-weight="bold">W_V,h</text>
   <text x="637" y="266" text-anchor="middle" fill="white" font-size="8">Linear</text>
 
-  <!-- dots between linear groups -->
   <text x="350" y="261" text-anchor="middle" fill="#ccc" font-size="18">· · ·</text>
 
-  <!-- Vertical drops from linear boxes to bus -->
+  <!-- Vertical drops: W box bottoms (y=271) down to bus (y=312) -->
   <line x1="63"  y1="271" x2="63"  y2="312" stroke="#bbb" stroke-width="1.1"/>
   <line x1="145" y1="271" x2="145" y2="312" stroke="#bbb" stroke-width="1.1"/>
   <line x1="227" y1="271" x2="227" y2="312" stroke="#bbb" stroke-width="1.1"/>
@@ -246,14 +254,16 @@ Exactly. **Multi-head attention** runs h independent attention operations in par
   <line x1="555" y1="271" x2="555" y2="312" stroke="#bbb" stroke-width="1.1"/>
   <line x1="637" y1="271" x2="637" y2="312" stroke="#bbb" stroke-width="1.1"/>
 
-  <!-- Horizontal bus -->
+  <!-- Horizontal bus: y=312 -->
   <line x1="63" y1="312" x2="637" y2="312" stroke="#bbb" stroke-width="1.5"/>
 
-  <!-- X input box -->
+  <!-- X top (y=340) → bus (y=314): upward -->
   <line x1="350" y1="340" x2="350" y2="314" stroke="#bbb" stroke-width="1.5" marker-end="url(#mha)"/>
+
+  <!-- X input: y=340–368 -->
   <rect x="295" y="340" width="110" height="28" rx="5" fill="#4fb1ba"/>
   <text x="350" y="359" text-anchor="middle" fill="white" font-size="13" font-weight="bold">X</text>
-  <text x="350" y="382" text-anchor="middle" fill="#888" font-size="10">input embeddings</text>
+  <text x="350" y="383" text-anchor="middle" fill="#888" font-size="10">input embeddings</text>
 </svg>
 </div>
 
