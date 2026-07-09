@@ -96,10 +96,10 @@ The √d scaling keeps the dot products from getting too large and pushing the s
   <text x="250" y="128" text-anchor="middle" fill="#e8a95c" font-size="12" font-weight="bold">K</text>
   <text x="370" y="128" text-anchor="middle" fill="#e8a95c" font-size="12" font-weight="bold">V</text>
 
-  <!-- W boxes top (y=140) → Q/K/V labels (y=118): upward, arrow points into label -->
-  <line x1="130" y1="140" x2="130" y2="119" stroke="#bbb" stroke-width="1.1" marker-end="url(#sha)"/>
-  <line x1="250" y1="140" x2="250" y2="119" stroke="#bbb" stroke-width="1.1" marker-end="url(#sha)"/>
-  <line x1="370" y1="140" x2="370" y2="119" stroke="#bbb" stroke-width="1.1" marker-end="url(#sha)"/>
+  <!-- W boxes top (y=140) → Q/K/V labels (y=132): short connector stubs -->
+  <line x1="130" y1="140" x2="130" y2="132" stroke="#bbb" stroke-width="1.1"/>
+  <line x1="250" y1="140" x2="250" y2="132" stroke="#bbb" stroke-width="1.1"/>
+  <line x1="370" y1="140" x2="370" y2="132" stroke="#bbb" stroke-width="1.1"/>
 
   <!-- W_Q / W_K / W_V boxes: y=140–167 -->
   <rect x="80"  y="140" width="100" height="27" rx="4" fill="#e8a95c" opacity="0.85"/>
