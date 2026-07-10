@@ -47,6 +47,41 @@ Here *pos* is the position in the sequence, *i* is the dimension index, and *d* 
 
 Dimension 0 oscillates so fast it flips sign every couple of tokens. Dimension 511 oscillates so slowly it barely moves across a sentence. Together, all 512 dimensions produce a combination of values that is unique to each position — like a clock with many hands, each ticking at a different speed. No two positions share the same combination.
 
+### A concrete example
+
+Take the sentence *"The bubbe made matzah ball soup again."* — seven tokens, zero-indexed. *"matzah"* sits at position 3.
+
+To keep the numbers readable, suppose the embedding has only 8 dimensions instead of 512. The positional encoding for position 3 is computed as:
+
+| Dimension | Formula | Value |
+|---|---|---|
+| 0 | sin(3 / 10000⁰) | sin(3.000) = **0.14** |
+| 1 | cos(3 / 10000⁰) | cos(3.000) = **−0.99** |
+| 2 | sin(3 / 10000^0.25) | sin(0.300) = **0.30** |
+| 3 | cos(3 / 10000^0.25) | cos(0.300) = **0.95** |
+| 4 | sin(3 / 10000^0.5) | sin(0.030) = **0.03** |
+| 5 | cos(3 / 10000^0.5) | cos(0.030) = **1.00** |
+| 6 | sin(3 / 10000^0.75) | sin(0.003) = **0.003** |
+| 7 | cos(3 / 10000^0.75) | cos(0.003) = **1.00** |
+
+Notice the pattern. Dimensions 0 and 1 are doing heavy oscillating — position 3 sits at a noticeable angle in a fast cycle. By dimension 4, the denominator is 100, so position 3 barely registers. By dimension 6, it is essentially zero. The fast dimensions distinguish nearby tokens; the slow ones help with tokens far apart.
+
+Now suppose *"matzah"* has an embedding vector (its learned meaning):
+
+```
+embedding("matzah") = [ 0.80, −0.20, 0.50, 0.10, −0.30, 0.70, 0.20, −0.40 ]
+```
+
+Adding the positional encoding for position 3:
+
+```
+PE(position=3)      = [ 0.14, −0.99, 0.30, 0.95,  0.03, 1.00, 0.003, 1.00 ]
+                                                                           +
+input to attention  = [ 0.94, −1.19, 0.80, 1.05, −0.27, 1.70, 0.203, 0.60 ]
+```
+
+If the same word *"matzah"* appeared at position 6 instead, the positional encoding would be different — different sin/cos values, different resulting vector. Same word, different position, different input to the attention layers. That is the whole point.
+
 ```python
 import torch
 import numpy as np
