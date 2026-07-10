@@ -6,7 +6,7 @@ description: |
 image: /assets/img/DimReduction-post/cover-part1.jpg
 ---
 
-*[This is Part 2. [Part 1 — The Forgetful Scribe](/machine-learning/2026-07-03-autoencoder-post/) covers autoencoders.]*
+*[This is Part 2. [Part 1 — The Forgetful Scribe](/machine-learning/2026-07-09-autoencoder-post/) covers autoencoders.]*
 
 ---
 
@@ -430,7 +430,7 @@ And once we solve that — once every token knows both what it is *and* where it
 
 *"Call everyone in,"* said Mathityahu. *"Multi-head. All of them."*
 
-*[Continue to [Part 3 — The Whole Room Is Listening](/machine-learning/2026-07-03-transformer-encoder-post/)]*
+*[Continue to [Part 3 — The Whole Room Is Listening](/machine-learning/2026-07-01-transformer-encoder-post/)]*
 
 ---
 

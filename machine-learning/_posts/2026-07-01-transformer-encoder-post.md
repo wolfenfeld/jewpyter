@@ -6,7 +6,7 @@ description: |
 image: /assets/img/DimReduction-post/cover-part1.jpg
 ---
 
-*[This is Part 3. [Part 1](/machine-learning/2026-07-03-autoencoder-post/) covers autoencoders. [Part 2](/machine-learning/2026-07-03-attention-post/) covers self-attention.]*
+*[This is Part 3. [Part 1](/machine-learning/2026-07-09-autoencoder-post/) covers autoencoders. [Part 2](/machine-learning/2026-07-05-attention-post/) covers self-attention.]*
 
 ---
 

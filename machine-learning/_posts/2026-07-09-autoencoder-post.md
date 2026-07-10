@@ -310,7 +310,7 @@ For sequences — text, speech, events in time — we need something that reads.
 
 *"We need the other guys,"* said Mathityahu.
 
-*[Continue to [Part 2 — The Scribe Reads the Room](/machine-learning/2026-07-03-attention-post/)]*
+*[Continue to [Part 2 — The Scribe Reads the Room](/machine-learning/2026-07-05-attention-post/)]*
 
 ---
 
