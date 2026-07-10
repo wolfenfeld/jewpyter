@@ -22,15 +22,30 @@ This is multi-head attention. And combined with positional encoding, it is the f
 
 ## Problem 1: Position
 
-A transformer has no inherent sense of order. The same token in position 1 and position 10 looks identical to the model. We need to give each position a unique fingerprint.
+A transformer has no inherent sense of order. The attention computation treats position 1 and position 10 identically — shuffle the tokens and the output changes nothing. For images this might be acceptable. For language it is fatal. *"The dog bit the man"* and *"The man bit the dog"* contain the same words. Position is the only thing separating news from miracle.
 
-The solution from the original 2017 paper (*Attention Is All You Need*) is elegant: add a signal to each token embedding that encodes its position using a fixed pattern of sines and cosines at different frequencies.
+The fix: before the first attention layer, **add a position vector to each token embedding**. Each token then carries two things fused together — what it means, and where it sits.
 
-<script type="math/tex; mode=display">PE_{(pos, 2i)} = \sin\!\left(\frac{pos}{10000^{2i/d}}\right)</script>
+*"Add what, exactly?"* asked Devorah.
 
-<script type="math/tex; mode=display">PE_{(pos, 2i+1)} = \cos\!\left(\frac{pos}{10000^{2i/d}}\right)</script>
+A vector the same length as the embedding (512 numbers, say). One unique vector per position. Position 1 gets vector A, position 2 gets vector B, and so on. The model adds them component-by-component to the token embeddings. After that, two tokens with the same word but different positions have different representations going into the attention layers.
 
-Each position gets a unique combination of sine and cosine values across all dimensions. Low dimensions oscillate fast (nearby positions differ a lot). High dimensions oscillate slowly (they capture long-range position). Together, they form a fingerprint that no two positions share.
+The question is: how do you design those vectors?
+
+The simplest idea — just number them (position 1 gets the vector [1, 1, 1...], position 2 gets [2, 2, 2...]) — doesn't work. Large positions produce large numbers, the addition distorts the embeddings, and the model never generalizes to sequences longer than it saw in training.
+
+The solution from the original 2017 paper (*Attention Is All You Need*) is to use sine and cosine waves at different frequencies. Each dimension of the position vector is assigned one wave:
+
+<script type="math/tex; mode=display">PE_{(pos,\, 2i)} = \sin\!\left(\frac{pos}{10000^{2i/d}}\right)</script>
+
+<script type="math/tex; mode=display">PE_{(pos,\, 2i+1)} = \cos\!\left(\frac{pos}{10000^{2i/d}}\right)</script>
+
+Here *pos* is the position in the sequence, *i* is the dimension index, and *d* is the embedding size. The key idea is the denominator — 10000 raised to a power that grows with *i*. This means:
+
+- **Low dimensions (small i)** → large denominator → fast-changing wave → nearby positions look very different from each other
+- **High dimensions (large i)** → small denominator ... wait, it is the reverse: large *i* → larger exponent → larger denominator → slower wave → only distant positions differ
+
+Dimension 0 oscillates so fast it flips sign every couple of tokens. Dimension 511 oscillates so slowly it barely moves across a sentence. Together, all 512 dimensions produce a combination of values that is unique to each position — like a clock with many hands, each ticking at a different speed. No two positions share the same combination.
 
 ```python
 import torch
@@ -45,13 +60,16 @@ def positional_encoding(max_len, d_model):
     pe[:, 0::2] = torch.sin(position * div_term)
     pe[:, 1::2] = torch.cos(position * div_term)
     return pe  # shape: (max_len, d_model)
+
+# Use it: add to embeddings before the attention layers
+x = token_embeddings + positional_encoding(seq_len, d_model)
 ```
 
-Here is what this looks like across 60 positions and 64 dimensions:
+Here is what the encoding looks like across 60 positions and 64 dimensions — each row is one position's fingerprint:
 
 <iframe src="/assets/charts/positional-encoding.html" style="width:100%;height:500px;border:none;"></iframe>
 
-Every row is a position's fingerprint. No two rows are the same. The model adds this matrix to the token embeddings before the attention layers — now every token knows both *what it is* and *where it sits*.
+The fast oscillations on the left (low dimensions) and the slow gradients on the right (high dimensions) are visible. No two rows are the same. The model adds this matrix to the token embeddings before anything else — now every token carries both *what it is* and *where it sits*, baked into the same vector.
 
 ---
 
