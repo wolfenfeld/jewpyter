@@ -338,40 +338,81 @@ This is not programmed. It is learned.
 
 *"But wait,"* said Devorah, who had been watching over Mathityahu's shoulder. *"In that chart — 'ball' is already looking at 'matzah.' How does it know to do that? Someone told it?"*
 
-Nobody told it. It learned.
+Nobody told it. It learned. But to understand how, you need to understand what it was learning from — and what it was trying to do.
 
-Here is what training looks like. You give the model a task it can be wrong about. The simplest one: **predict the next word**.
+### The data
 
-Feed in *"The bubbe made matzah ball"* — five tokens. The model produces a probability distribution over the entire vocabulary for what comes next. If it says *"lamp"* and the correct answer is *"soup"*, that is wrong. You measure how wrong — with **cross-entropy loss**:
+Raw text. No labels. Books, articles, Wikipedia, code, the entire digitized output of people writing things down. The labels come from the text itself: every word in a sentence is the correct answer to the question *"what comes after the previous words?"*
+
+*"So someone had to label all of that?"* asked Devorah.
+
+*"No,"* said Mathityahu. *"The text labels itself. If I give you 'The bubbe made matzah ball' and ask what comes next — the answer is already in the next line of the book."*
+
+This is called **self-supervised learning**. The model never needs a human to annotate anything. It just needs text, and there is no shortage of text.
+
+### The task
+
+At each position in a sequence, the model predicts the next token. Feed in *"The bubbe made matzah ball"* — five tokens. The model runs every one of them through the attention layers and produces, for each position, a probability distribution over the entire vocabulary. At position 5 (*"ball"*), it outputs something like: P(*"soup"*) = 0.34, P(*"game"*) = 0.12, P(*"lamp"*) = 0.001.
+
+The correct answer is *"soup."* The model assigned it 0.34. That is wrong enough to learn from.
+
+### The loss
+
+The mistake is measured with **cross-entropy loss**:
 
 <script type="math/tex; mode=display">\mathcal{L} = -\log P(\text{soup})</script>
 
-The lower the probability the model assigned to the correct word, the higher the loss. Then you backpropagate — the gradient flows backward through the softmax, through the attention weights, all the way back into the Q, K, and V projection matrices.
-
-At the start of training, those matrices are random. *"ball"* attends to *"The"* just as much as it attends to *"matzah."* The attention map looks like television static.
+If the model assigned 0.34 to *"soup"*, the loss is −log(0.34) ≈ 1.08. If it had assigned 0.01 — confidently wrong — the loss is −log(0.01) ≈ 4.6. The loss is high when the model is wrong, higher when it is confidently wrong.
 
 ```python
 criterion = nn.CrossEntropyLoss()
 
-# logits: (batch, seq_len, vocab_size) — model's predictions at each position
+# logits: (batch, seq_len, vocab_size)
 # targets: (batch, seq_len) — the actual next tokens
 logits = model(input_tokens)
 loss = criterion(
     logits.view(-1, vocab_size),
     targets.view(-1)
 )
-
-loss.backward()
-optimizer.step()
 ```
 
-Over millions of sentences, the gradient keeps nudging the matrices in the same direction: make *"ball"* look at *"matzah,"* because that pattern reliably predicts *"soup."* Make *"made"* look at *"bubbe,"* because verbs need their subjects to predict correctly.
+### Backpropagation
 
-Nobody programmed those relationships. The task demanded them. The loss enforced them.
+Once you have the loss, you differentiate it with respect to every parameter in the network using the chain rule. The gradient flows backward through each operation in reverse order:
 
-*"So the attention map is the network's notes,"* said Devorah. *"What it had to learn to get the answers right."*
+- Through the final linear projection to vocabulary size
+- Through W_O, the output projection of multi-head attention
+- Through each head's attention computation — through the softmax, through the QKᵀ dot product, into W_Q, W_K, and W_V
+- Through the feedforward layers
+- All the way back into the embedding matrix
 
-*"Exactly,"* said Mathityahu. *"And it takes a lot of sentences."*
+Every parameter receives a number saying: *"move in this direction by this much to reduce the loss."* The optimizer — usually Adam — applies those updates.
+
+```python
+loss.backward()   # compute all gradients via chain rule
+optimizer.step()  # update every parameter
+optimizer.zero_grad()
+```
+
+At the start of training, all matrices are random. *"ball"* attends to *"The"* just as much as it attends to *"matzah."* The attention map looks like television static.
+
+After millions of updates, the gradient has consistently pushed in one direction: make *"ball"* look at *"matzah,"* because that pattern reliably predicts *"soup."* Make *"made"* look at *"bubbe,"* because verbs need their subjects. The relationships are not programmed. The task demanded them. The loss enforced them.
+
+### The scale
+
+*"How many sentences?"* asked Devorah.
+
+*"GPT-2 trained on forty gigabytes of text,"* said Mathityahu. *"GPT-3, three hundred billion tokens. Weeks of compute on thousands of processors."*
+
+Devorah was quiet for a moment. *"And all of that just to predict the next word?"*
+
+*"All of that just to predict the next word."*
+
+The architecture is not complicated. The scale is what produces the behavior.
+
+*"So the attention map is the network's notes,"* said Devorah finally. *"What it had to learn to get the answers right."*
+
+*"Exactly,"* said Mathityahu.
 
 ---
 
