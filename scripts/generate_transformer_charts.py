@@ -203,14 +203,19 @@ def chart_attention_heatmap():
     #   Row 4 "ball"  → strong attention to col 3 "matzah" (modifier→noun)
     #   Row 5 "soup"  → strong attention to col 2 "made"   (result→verb)
     #   Row 6 "again" → strong attention to col 2 "made"   (adverb→verb)
+    #   Row 2 "made"  → dominant: col 1 "bubbe"  (verb seeks subject)
+    #   Row 3 "matzah"→ dominant: col 4 "ball"   (compound noun, first word → second)
+    #   Row 4 "ball"  → dominant: col 3 "matzah" (compound noun, second word → first)
+    #   Row 5 "soup"  → dominant: col 2 "made"   (result → verb)
+    #   Row 6 "again" → dominant: col 2 "made"   (adverb → verb)
     weights = np.array([
-        [0.82, 0.07, 0.04, 0.02, 0.02, 0.02, 0.01],  # The
-        [0.07, 0.75, 0.08, 0.04, 0.02, 0.02, 0.02],  # bubbe
-        [0.03, 0.50, 0.30, 0.05, 0.05, 0.05, 0.02],  # made
-        [0.02, 0.05, 0.04, 0.74, 0.08, 0.05, 0.02],  # matzah
-        [0.01, 0.03, 0.03, 0.60, 0.28, 0.04, 0.01],  # ball
-        [0.02, 0.05, 0.35, 0.12, 0.10, 0.32, 0.04],  # soup
-        [0.01, 0.03, 0.33, 0.03, 0.03, 0.08, 0.49],  # again
+        [0.20, 0.30, 0.20, 0.10, 0.10, 0.05, 0.05],  # The    — spreads across context
+        [0.10, 0.20, 0.50, 0.08, 0.06, 0.04, 0.02],  # bubbe  — subject looks at its verb
+        [0.05, 0.55, 0.20, 0.08, 0.06, 0.04, 0.02],  # made   — verb looks at its subject
+        [0.03, 0.04, 0.06, 0.20, 0.60, 0.05, 0.02],  # matzah — compound: looks at "ball"
+        [0.02, 0.04, 0.05, 0.62, 0.18, 0.07, 0.02],  # ball   — compound: looks at "matzah"
+        [0.03, 0.06, 0.48, 0.18, 0.12, 0.10, 0.03],  # soup   — looks at "made" (what made it)
+        [0.02, 0.04, 0.52, 0.05, 0.05, 0.16, 0.16],  # again  — adverb looks at "made"
     ])
 
     fig = go.Figure(go.Heatmap(

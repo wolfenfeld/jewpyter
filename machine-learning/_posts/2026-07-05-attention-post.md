@@ -328,9 +328,9 @@ You can. Below is an illustrative attention map for the sentence *"The bubbe mad
 
 <iframe src="/assets/charts/attention-heatmap.html" style="width:100%;height:500px;border:none;"></iframe>
 
-The diagonal is always bright. Every word attends most strongly to itself. That much is predictable.
+Look at row *"made."* The brightest cell is not on the diagonal — it lands squarely on *"bubbe."* The verb went looking for its subject. Row *"bubbe"* does the same in reverse: the subject turns to look at *"made,"* its verb. They are attending to each other.
 
-But then look at row *"made."* The brightest off-diagonal cell falls on *"bubbe."* The verb went looking for its subject — basic grammar, and the model learned it from nothing but next-word prediction. Look at row *"ball."* It almost ignores everything except *"matzah."* A ball alone is ambiguous — tennis ball, basketball, gala — but a matzah ball is specific. *"Soup"* and *"again"* both reach back to *"made"* — one anchoring itself to the verb it completes, the other to the action it repeats.
+Now look at rows *"matzah"* and *"ball."* Each one's brightest cell is the other. A matzah ball is a compound noun — neither word means the same thing alone — and the model has learned that these two words are inseparable. *"Soup"* and *"again"* both reach back to *"made"* — one anchoring itself to the verb it completes, the other to the action it repeats. *"The"* spreads out diffusely, because an article is grammatically tied to everything near it and nothing in particular.
 
 *"But wait,"* said Devorah. *"I've seen attention diagrams where the upper right is completely blank. A whole triangle of zeros. Is that supposed to be here too?"*
 
