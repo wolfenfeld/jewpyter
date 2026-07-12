@@ -195,23 +195,23 @@ def chart_attention_heatmap():
     print("Chart — Self-attention heatmap")
 
     tokens = ["The", "bubbe", "made", "matzah", "ball", "soup", "again"]
-    n = len(tokens)
 
-    # Construct a plausible attention pattern
-    np.random.seed(17)
-    weights = np.random.dirichlet(np.ones(n) * 0.3, size=n)
-
-    # Add structure: self-attention diagonal + linguistic patterns
-    for i in range(n):
-        weights[i, i] += 0.25
-    weights[3, 1] += 0.35   # matzah → bubbe
-    weights[4, 3] += 0.45   # ball → matzah
-    weights[5, 2] += 0.30   # soup → made
-    weights[2, 1] += 0.25   # made → bubbe
-    weights[6, 2] += 0.20   # again → made
-
-    # Renormalize rows
-    weights = weights / weights.sum(axis=1, keepdims=True)
+    # Hand-crafted weights — each row sums to 1.0.
+    # Designed to clearly show linguistic patterns the text describes.
+    #   Rows = query (who is looking), Cols = key (what is being looked at)
+    #   Row 2 "made"  → strong attention to col 1 "bubbe"  (verb→subject)
+    #   Row 4 "ball"  → strong attention to col 3 "matzah" (modifier→noun)
+    #   Row 5 "soup"  → strong attention to col 2 "made"   (result→verb)
+    #   Row 6 "again" → strong attention to col 2 "made"   (adverb→verb)
+    weights = np.array([
+        [0.82, 0.07, 0.04, 0.02, 0.02, 0.02, 0.01],  # The
+        [0.07, 0.75, 0.08, 0.04, 0.02, 0.02, 0.02],  # bubbe
+        [0.03, 0.50, 0.30, 0.05, 0.05, 0.05, 0.02],  # made
+        [0.02, 0.05, 0.04, 0.74, 0.08, 0.05, 0.02],  # matzah
+        [0.01, 0.03, 0.03, 0.60, 0.28, 0.04, 0.01],  # ball
+        [0.02, 0.05, 0.35, 0.12, 0.10, 0.32, 0.04],  # soup
+        [0.01, 0.03, 0.33, 0.03, 0.03, 0.08, 0.49],  # again
+    ])
 
     fig = go.Figure(go.Heatmap(
         z=weights,

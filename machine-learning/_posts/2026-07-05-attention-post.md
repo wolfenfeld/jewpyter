@@ -6,7 +6,7 @@ description: |
 image: /assets/img/DimReduction-post/cover-part1.jpg
 ---
 
-*[This is Part 2. [Part 1 — The Forgetful Scribe](/machine-learning/2026-07-09-autoencoder-post/) covers autoencoders.]*
+*[This is Part 2. [Part 1 — The Forgetful Scribe](/machine-learning/2026-07-01-autoencoder-post/) covers autoencoders.]*
 
 ---
 
@@ -322,13 +322,21 @@ Each token in the output is a blend of *all* tokens in the input. The sequence l
 
 ## What the Weights Look Like
 
-Below is an illustrative attention map — what a trained model might learn for the sentence *"The bubbe made matzah ball soup again"*:
+Devorah leaned over Mathityahu's shoulder. *"So after all those dot products — you can actually see what each word decided to pay attention to?"*
+
+You can. Below is an illustrative attention map for the sentence *"The bubbe made matzah ball soup again"*. Each row is one query token — the word doing the looking. Each column is a key token — the word being looked at. Darker means stronger attention.
 
 <iframe src="/assets/charts/attention-heatmap.html" style="width:100%;height:500px;border:none;"></iframe>
 
-Read it row by row. Each row is one query token — the word that is "looking." Each column is a key token — the word being "looked at." Darker means stronger attention.
+The diagonal is always bright. Every word attends most strongly to itself. That much is predictable.
 
-Notice: *"ball"* attends strongly to *"matzah"* — because "ball" alone means nothing; its meaning depends on what preceded it. *"made"* attends to *"bubbe"* — the verb looks for its subject.
+But then look at row *"made."* The brightest off-diagonal cell falls on *"bubbe."* The verb went looking for its subject — basic grammar, and the model learned it from nothing but next-word prediction. Look at row *"ball."* It almost ignores everything except *"matzah."* A ball alone is ambiguous — tennis ball, basketball, gala — but a matzah ball is specific. *"Soup"* and *"again"* both reach back to *"made"* — one anchoring itself to the verb it completes, the other to the action it repeats.
+
+*"But wait,"* said Devorah. *"I've seen attention diagrams where the upper right is completely blank. A whole triangle of zeros. Is that supposed to be here too?"*
+
+That blank triangle exists — but only in a **decoder**. A model that generates text word by word, like GPT, cannot look ahead: when it is generating *"ball,"* the word *"soup"* does not exist yet. So everything to the upper right of the diagonal — future positions — is forced to zero before the softmax.
+
+This is an **encoder**. It reads the full sentence at once, the way you are reading this one now. *"ball"* already knows *"soup"* is there. No masking. The full grid is live. That bidirectionality is what makes encoders suited for understanding tasks rather than generation.
 
 This is not programmed. It is learned.
 
@@ -430,7 +438,7 @@ And once we solve that — once every token knows both what it is *and* where it
 
 *"Call everyone in,"* said Mathityahu. *"Multi-head. All of them."*
 
-*[Continue to [Part 3 — The Whole Room Is Listening](/machine-learning/2026-07-01-transformer-encoder-post/)]*
+*[Continue to [Part 3 — The Whole Room Is Listening](/machine-learning/2026-07-09-transformer-encoder-post/)]*
 
 ---
 
