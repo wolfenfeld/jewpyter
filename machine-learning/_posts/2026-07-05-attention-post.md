@@ -324,7 +324,13 @@ Each token in the output is a blend of *all* tokens in the input. The sequence l
 
 Devorah leaned over Mathityahu's shoulder. *"So after all those dot products — you can actually see what each word decided to pay attention to?"*
 
-You can. Below is an illustrative attention map for the sentence *"The bubbe made matzah ball soup again"*. Each row is one query token — the word doing the looking. Each column is a key token — the word being looked at. Darker means stronger attention.
+You can. The heatmap shows the **attention weight matrix** A — the output of the softmax step from the formula we saw earlier:
+
+<script type="math/tex; mode=display">A = \text{softmax}\!\left(\frac{QK^\top}{\sqrt{d_k}}\right)</script>
+
+Each cell A[i, j] answers the question: *how much does word i pay attention to word j?* Every row sums to 1 — softmax turns the raw scores into a proper probability distribution across all keys. What you see in the chart is those probabilities, before they are used to weight the values V.
+
+Below is an illustrative map for the sentence *"The bubbe made matzah ball soup again"*. Each row is one query token — the word doing the looking. Each column is a key token — the word being looked at. Darker means stronger attention.
 
 <iframe src="/assets/charts/attention-heatmap.html" style="width:100%;height:500px;border:none;"></iframe>
 
