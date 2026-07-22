@@ -22,30 +22,47 @@ This is multi-head attention. And combined with positional encoding, it is the f
 
 ## Problem 1: Position
 
-A transformer has no inherent sense of order. The attention computation treats position 1 and position 10 identically — shuffle the tokens and the output changes nothing. For images this might be acceptable. For language it is fatal. *"The dog bit the man"* and *"The man bit the dog"* contain the same words. Position is the only thing separating news from miracle.
+A transformer has no inherent sense of order. The attention computation is a set of dot products — it treats position 1 and position 10 identically. Shuffle the tokens and the output is unchanged. For language this is fatal. *"The dog bit the man"* and *"The man bit the dog"* contain the same four words. Position is the only thing separating news from miracle.
 
-The fix: before the first attention layer, **add a position vector to each token embedding**. Each token then carries two things fused together — what it means, and where it sits.
+**The fix:** before the first attention layer, add a small position-specific nudge to each word's embedding. Word at position 3 gets a different nudge than the word at position 7. Now when Q and K are computed, position is already baked in.
 
 *"Add what, exactly?"* asked Devorah.
 
-A vector the same length as the embedding (512 numbers, say). One unique vector per position. Position 1 gets vector A, position 2 gets vector B, and so on. The model adds them component-by-component to the token embeddings. After that, two tokens with the same word but different positions have different representations going into the attention layers.
+A vector — the same length as the embedding — that is unique to each position. The model adds it component-by-component to the token embedding. After that, the same word appearing at two different positions produces two different vectors going into attention.
 
-The question is: how do you design those vectors?
+The hard part is designing those vectors. Two things are required:
 
-The simplest idea — just number them (position 1 gets the vector [1, 1, 1...], position 2 gets [2, 2, 2...]) — doesn't work. Large positions produce large numbers, the addition distorts the embeddings, and the model never generalizes to sequences longer than it saw in training.
+- Every position must get a **unique fingerprint** — no two positions can be confused
+- The fingerprint must **generalize** — a model trained on sequences of length 512 should handle length 1000 without seeing garbage
 
-The solution from the original 2017 paper (*Attention Is All You Need*) is to use sine and cosine waves at different frequencies. Each dimension of the position vector is assigned one wave:
+The simplest idea — just use the position number directly — fails both. Large positions produce large numbers that swamp the embedding values, and a model that saw positions 1–512 in training has no idea what to do with position 513.
+
+### The binary analogy
+
+Consider how binary numbers count. The rightmost bit flips every step, the next bit every two steps, the next every four, and so on:
+
+| Position | Bit 2 | Bit 1 | Bit 0 |
+|---|---|---|---|
+| 0 | 0 | 0 | 0 |
+| 1 | 0 | 0 | 1 |
+| 2 | 0 | 1 | 0 |
+| 3 | 0 | 1 | 1 |
+| 4 | 1 | 0 | 0 |
+
+Every position gets a unique combination. And no bit ever blows up — they stay 0 or 1 regardless of how far you count.
+
+Sinusoidal positional encoding is the continuous version of this idea. Instead of discrete bits flipping at different rates, use smooth sine and cosine waves cycling at different frequencies. Each pair of dimensions gets one frequency:
 
 <script type="math/tex; mode=display">PE_{(pos,\, 2i)} = \sin\!\left(\frac{pos}{10000^{2i/d}}\right)</script>
 
 <script type="math/tex; mode=display">PE_{(pos,\, 2i+1)} = \cos\!\left(\frac{pos}{10000^{2i/d}}\right)</script>
 
-Here *pos* is the position in the sequence, *i* is the dimension index, and *d* is the embedding size. The key idea is the denominator — 10000 raised to a power that grows with *i*. This means:
+*pos* is the position in the sequence, *i* is the dimension pair index, *d* is the embedding size. The denominator grows with *i*, so:
 
-- **Low dimensions (small i)** → large denominator → fast-changing wave → nearby positions look very different from each other
-- **High dimensions (large i)** → small denominator ... wait, it is the reverse: large *i* → larger exponent → larger denominator → slower wave → only distant positions differ
+- **Low dimensions (small i):** fast-cycling wave — flips sign every few positions, like the rightmost bit
+- **High dimensions (large i):** slow-cycling wave — barely moves across an entire sentence, like the leftmost bit
 
-Dimension 0 oscillates so fast it flips sign every couple of tokens. Dimension 511 oscillates so slowly it barely moves across a sentence. Together, all 512 dimensions produce a combination of values that is unique to each position — like a clock with many hands, each ticking at a different speed. No two positions share the same combination.
+Together, the 512 dimensions produce a combination of values that is unique at every position and bounded between −1 and 1 everywhere — so it never swamps the embeddings, and a frequency the model saw during training is still the same frequency at position 1000. Both constraints satisfied.
 
 ### A concrete example
 
