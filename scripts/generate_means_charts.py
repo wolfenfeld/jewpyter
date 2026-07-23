@@ -45,8 +45,9 @@ def save(fig, name):
 
 def chart_means_fixed_distance():
     print("Chart — Fixed distance (harmonic wins)")
+    np.random.seed(7)
     n = 50
-    mu, sigma = 100, 40
+    mu, sigma = 100, 20  # sigma=20 keeps all times positive (min ~40 at 3σ)
 
     t_i = sigma * np.random.randn(n) + mu
     x_i = 1000 * np.ones(n)
