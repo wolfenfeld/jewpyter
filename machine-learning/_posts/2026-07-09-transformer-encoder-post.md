@@ -62,6 +62,8 @@ Sinusoidal positional encoding is the continuous version of this idea. Instead o
 - **Low dimensions (small i):** fast-cycling wave — flips sign every few positions, like the rightmost bit
 - **High dimensions (large i):** slow-cycling wave — barely moves across an entire sentence, like the leftmost bit
 
+The assignment of fast to low dimensions and slow to high is a convention — you could reverse it and the encoding would work just as well. What is not arbitrary is having *both* speeds. Fast waves are sensitive to small position differences: positions 7 and 8 look very different. But they loop — positions 7 and 7+period look identical. Slow waves never loop within a realistic sequence, so they separate distant positions that fast waves confuse. Neither alone is enough. Together they give you a fingerprint that is locally precise and globally unique.
+
 Together, the 512 dimensions produce a combination of values that is unique at every position and bounded between −1 and 1 everywhere — so it never swamps the embeddings, and a frequency the model saw during training is still the same frequency at position 1000. Both constraints satisfied.
 
 ### A concrete example
