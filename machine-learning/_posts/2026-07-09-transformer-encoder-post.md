@@ -248,7 +248,13 @@ One transformer encoder block combines everything: multi-head attention, a posit
 </svg>
 </div>
 
-The residual connections (shown in amber) add the block's input to its output before normalization. This means even if a block learns nothing useful, the signal still passes through unchanged. It is a safety net that makes training much more stable.
+The residual connections (shown in amber) add the block's input to its output before normalization. Instead of learning a full transformation `output = f(x)`, each block only learns the *difference* from its input: `output = x + f(x)`. It only has to figure out what to change, not reconstruct everything from scratch.
+
+*"Why does that matter?"* asked Devorah.
+
+Two reasons. First: gradients. During training, the gradient flows backward through every layer. In a network with 96 layers, by the time the gradient reaches layer 1 it has been multiplied by a small number 96 times — it is essentially zero, and that layer learns nothing. The residual connection adds a direct highway: the gradient can skip straight through the addition without passing through f at all, so early layers still receive a meaningful signal.
+
+Second: graceful degradation. If a block learns nothing useful — f(x) ≈ 0 — the output is still x. The signal passes through unchanged. Adding more layers can never make things worse. The network can be made as deep as needed and will only use the capacity it can actually train.
 
 In PyTorch, using the built-in `nn.MultiheadAttention`:
 
