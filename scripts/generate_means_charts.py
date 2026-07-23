@@ -128,6 +128,7 @@ def chart_means_fixed_duration():
 
 def chart_means_population():
     print("Chart — Population growth (geometric wins)")
+    np.random.seed(51)
     t = 150
     mu, sigma = 1.2, 0.1
     alpha_i = sigma * np.random.randn(t) + mu
