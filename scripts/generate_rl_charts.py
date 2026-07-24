@@ -123,8 +123,8 @@ class QLearningAgent:
         self.q_table = {}
 
     def _discretize(self, state):
-        bins = np.linspace(-3, 3, self.n_bins)
-        return tuple(np.digitize(np.clip(s, -3, 3), bins) for s in state)
+        bins = np.linspace(-5, 5, self.n_bins)
+        return tuple(np.digitize(np.clip(s, -5, 5), bins) for s in state)
 
     def _q(self, state):
         key = self._discretize(state)
@@ -146,7 +146,7 @@ class QLearningAgent:
 
 def run_q_learning(episodes=300):
     env = CartPole()
-    agent = QLearningAgent()
+    agent = QLearningAgent(n_bins=15)
     rewards = []
 
     for _ in range(episodes):
