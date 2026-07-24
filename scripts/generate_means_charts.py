@@ -133,12 +133,13 @@ def chart_means_population():
     mu, sigma = 1.2, 0.1
     alpha_i = sigma * np.random.randn(t) + mu
 
-    sample_idx = np.random.choice(t, int(0.7 * t), replace=False)
-    sampled_alpha = alpha_i[sample_idx]
-
-    g_mean = gmean(sampled_alpha)
-    a_mean = np.mean(sampled_alpha)
-    h_mean = hmean(sampled_alpha)
+    # Use all growth rates — not a sample.
+    # gmean(all α)^t = ∏α_i by definition, so geometric always wins exactly.
+    # Sampling + 150-step exponentiation amplifies tiny errors enormously,
+    # making the outcome depend on luck rather than the property of the mean.
+    g_mean = gmean(alpha_i)
+    a_mean = np.mean(alpha_i)
+    h_mean = hmean(alpha_i)
 
     initial_population = 10
     time_steps = np.arange(t + 1)
