@@ -190,9 +190,10 @@ def chart_rl_comparison():
     hc_all = np.zeros((N_RUNS, EPISODES))
     ql_all = np.zeros((N_RUNS, EPISODES))
 
-    np.random.seed(42)
     for i in range(N_RUNS):
+        np.random.seed(i)
         hc_all[i] = run_hill_climb(EPISODES)
+        np.random.seed(i)
         ql_all[i] = run_q_learning(EPISODES)
 
     hc_mean = hc_all.mean(axis=0)
