@@ -1,0 +1,192 @@
+<svg viewBox="0 0 740 420" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:740px;display:block;margin:2rem auto;">
+<defs>
+  <marker id="ag" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto"><path d="M0,0 L0,7 L7,3.5 z" fill="#7B82A0"/></marker>
+  <marker id="aql" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto"><path d="M0,0 L0,7 L7,3.5 z" fill="#4B6BFB"/></marker>
+  <marker id="adqn" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto"><path d="M0,0 L0,7 L7,3.5 z" fill="#E8503A"/></marker>
+</defs>
+<style>
+  :root {
+    --bg:       #F7F8FC;
+    --surface:  #FFFFFF;
+    --border:   #CDD2E4;
+    --txt:      #1B1D2B;
+    --sub:      #7B82A0;
+    --ql:       #4B6BFB;
+    --ql-fill:  #EEF1FF;
+    --dqn:      #E8503A;
+    --dqn-fill: #FEF0EE;
+    --div:      #CDD2E4;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg:       #1B1D2B;
+      --surface:  #252838;
+      --border:   #383C54;
+      --txt:      #E6E8F4;
+      --sub:      #8B92B0;
+      --ql-fill:  #1D2245;
+      --dqn-fill: #2B1E1C;
+      --div:      #383C54;
+    }
+  }
+</style>
+
+<!-- Background -->
+<rect width="740" height="420" fill="var(--bg)" rx="10"/>
+
+<!-- Divider -->
+<line x1="370" y1="16" x2="370" y2="404" stroke="var(--div)" stroke-width="1" stroke-dasharray="5,4"/>
+
+<!-- ══════════════════ Q-LEARNING (left) ══════════════════ -->
+<text x="185" y="36" text-anchor="middle" font-size="12" font-weight="700" fill="var(--ql)" font-family="ui-monospace,monospace" letter-spacing=".08em">Q-LEARNING</text>
+
+<!-- State -->
+<rect x="115" y="48" width="140" height="34" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="1.5"/>
+<text x="185" y="70" text-anchor="middle" font-size="12" fill="var(--txt)" font-family="ui-monospace,monospace">state  s</text>
+
+<!-- ↓ -->
+<line x1="185" y1="82" x2="185" y2="98" stroke="var(--sub)" stroke-width="1.5" marker-end="url(#ag)"/>
+
+<!-- Discretize -->
+<rect x="95" y="98" width="180" height="42" rx="6" fill="var(--ql-fill)" stroke="var(--ql)" stroke-width="1.5"/>
+<text x="185" y="115" text-anchor="middle" font-size="11" font-weight="600" fill="var(--ql)" font-family="ui-monospace,monospace">Discretize</text>
+<text x="185" y="131" text-anchor="middle" font-size="10" fill="var(--ql)" font-family="ui-monospace,monospace">[ bin₁ | bin₂ | bin₃ ]</text>
+
+<!-- ↓ -->
+<line x1="185" y1="140" x2="185" y2="156" stroke="var(--sub)" stroke-width="1.5" marker-end="url(#ag)"/>
+
+<!-- Q-Table -->
+<rect x="95" y="156" width="180" height="100" rx="6" fill="var(--ql-fill)" stroke="var(--ql)" stroke-width="1.5"/>
+<text x="185" y="174" text-anchor="middle" font-size="11" font-weight="600" fill="var(--ql)" font-family="ui-monospace,monospace">Q-Table</text>
+<!-- column headers -->
+<text x="142" y="188" text-anchor="middle" font-size="9" fill="var(--sub)" font-family="ui-monospace,monospace">a₁</text>
+<text x="185" y="188" text-anchor="middle" font-size="9" fill="var(--sub)" font-family="ui-monospace,monospace">a₂</text>
+<text x="228" y="188" text-anchor="middle" font-size="9" fill="var(--sub)" font-family="ui-monospace,monospace">a₃</text>
+<!-- row labels -->
+<text x="104" y="202" font-size="9" fill="var(--sub)" font-family="ui-monospace,monospace">s₁</text>
+<text x="104" y="220" font-size="9" fill="var(--sub)" font-family="ui-monospace,monospace">s₂</text>
+<text x="104" y="238" font-size="9" fill="var(--sub)" font-family="ui-monospace,monospace">s₃</text>
+<!-- row 1 -->
+<rect x="118" y="192" width="44" height="14" rx="2" fill="var(--ql)" opacity=".70"/>
+<rect x="163" y="192" width="44" height="14" rx="2" fill="var(--ql)" opacity=".25"/>
+<rect x="208" y="192" width="44" height="14" rx="2" fill="var(--ql)" opacity=".45"/>
+<!-- row 2 -->
+<rect x="118" y="208" width="44" height="14" rx="2" fill="var(--ql)" opacity=".20"/>
+<rect x="163" y="208" width="44" height="14" rx="2" fill="var(--ql)" opacity=".90"/>
+<rect x="208" y="208" width="44" height="14" rx="2" fill="var(--ql)" opacity=".35"/>
+<!-- row 3 -->
+<rect x="118" y="224" width="44" height="14" rx="2" fill="var(--ql)" opacity=".40"/>
+<rect x="163" y="224" width="44" height="14" rx="2" fill="var(--ql)" opacity=".55"/>
+<rect x="208" y="224" width="44" height="14" rx="2" fill="var(--ql)" opacity=".15"/>
+
+<!-- direct update loop -->
+<path d="M95,206 C48,206 48,119 95,119" fill="none" stroke="var(--ql)" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#aql)"/>
+<text x="58" y="165" text-anchor="middle" font-size="9" fill="var(--ql)" font-family="ui-monospace,monospace" transform="rotate(-90,58,165)">direct update</text>
+
+<!-- ↓ -->
+<line x1="185" y1="256" x2="185" y2="272" stroke="var(--sub)" stroke-width="1.5" marker-end="url(#ag)"/>
+
+<!-- argmax -->
+<rect x="135" y="272" width="100" height="30" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="1.5"/>
+<text x="185" y="291" text-anchor="middle" font-size="11" fill="var(--txt)" font-family="ui-monospace,monospace">argmax</text>
+
+<!-- ↓ -->
+<line x1="185" y1="302" x2="185" y2="318" stroke="var(--sub)" stroke-width="1.5" marker-end="url(#ag)"/>
+
+<!-- Action -->
+<rect x="115" y="318" width="140" height="34" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="1.5"/>
+<text x="185" y="340" text-anchor="middle" font-size="12" fill="var(--txt)" font-family="ui-monospace,monospace">action  a</text>
+
+<!-- Bottom note -->
+<text x="185" y="384" text-anchor="middle" font-size="10" fill="var(--sub)" font-family="ui-monospace,monospace">one cell updated per step</text>
+
+
+<!-- ══════════════════ DQN (right) ══════════════════ -->
+<text x="545" y="36" text-anchor="middle" font-size="12" font-weight="700" fill="var(--dqn)" font-family="ui-monospace,monospace" letter-spacing=".08em">DQN</text>
+
+<!-- State -->
+<rect x="475" y="48" width="140" height="34" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="1.5"/>
+<text x="545" y="70" text-anchor="middle" font-size="12" fill="var(--txt)" font-family="ui-monospace,monospace">state  s</text>
+
+<!-- ↓ -->
+<line x1="545" y1="82" x2="545" y2="98" stroke="var(--sub)" stroke-width="1.5" marker-end="url(#ag)"/>
+
+<!-- Neural Network box -->
+<rect x="455" y="98" width="180" height="140" rx="6" fill="var(--dqn-fill)" stroke="var(--dqn)" stroke-width="1.5"/>
+<text x="545" y="116" text-anchor="middle" font-size="11" font-weight="600" fill="var(--dqn)" font-family="ui-monospace,monospace">Neural Network</text>
+
+<!-- input nodes -->
+<circle cx="488" cy="150" r="8" fill="var(--dqn)" opacity=".55"/>
+<circle cx="488" cy="170" r="8" fill="var(--dqn)" opacity=".55"/>
+<circle cx="488" cy="190" r="8" fill="var(--dqn)" opacity=".55"/>
+<circle cx="488" cy="210" r="8" fill="var(--dqn)" opacity=".55"/>
+
+<!-- input→hidden connections -->
+<line x1="496" y1="150" x2="536" y2="155" stroke="var(--dqn)" stroke-width=".9" opacity=".35"/>
+<line x1="496" y1="150" x2="536" y2="175" stroke="var(--dqn)" stroke-width=".9" opacity=".35"/>
+<line x1="496" y1="150" x2="536" y2="195" stroke="var(--dqn)" stroke-width=".9" opacity=".35"/>
+<line x1="496" y1="170" x2="536" y2="155" stroke="var(--dqn)" stroke-width=".9" opacity=".35"/>
+<line x1="496" y1="170" x2="536" y2="175" stroke="var(--dqn)" stroke-width=".9" opacity=".35"/>
+<line x1="496" y1="170" x2="536" y2="195" stroke="var(--dqn)" stroke-width=".9" opacity=".35"/>
+<line x1="496" y1="190" x2="536" y2="155" stroke="var(--dqn)" stroke-width=".9" opacity=".35"/>
+<line x1="496" y1="190" x2="536" y2="175" stroke="var(--dqn)" stroke-width=".9" opacity=".35"/>
+<line x1="496" y1="190" x2="536" y2="195" stroke="var(--dqn)" stroke-width=".9" opacity=".35"/>
+<line x1="496" y1="210" x2="536" y2="155" stroke="var(--dqn)" stroke-width=".9" opacity=".35"/>
+<line x1="496" y1="210" x2="536" y2="175" stroke="var(--dqn)" stroke-width=".9" opacity=".35"/>
+<line x1="496" y1="210" x2="536" y2="195" stroke="var(--dqn)" stroke-width=".9" opacity=".35"/>
+
+<!-- hidden nodes -->
+<circle cx="543" cy="155" r="8" fill="var(--dqn)" opacity=".80"/>
+<circle cx="543" cy="175" r="8" fill="var(--dqn)" opacity=".80"/>
+<circle cx="543" cy="195" r="8" fill="var(--dqn)" opacity=".80"/>
+
+<!-- hidden→output connections -->
+<line x1="551" y1="155" x2="591" y2="165" stroke="var(--dqn)" stroke-width=".9" opacity=".35"/>
+<line x1="551" y1="155" x2="591" y2="185" stroke="var(--dqn)" stroke-width=".9" opacity=".35"/>
+<line x1="551" y1="175" x2="591" y2="165" stroke="var(--dqn)" stroke-width=".9" opacity=".35"/>
+<line x1="551" y1="175" x2="591" y2="185" stroke="var(--dqn)" stroke-width=".9" opacity=".35"/>
+<line x1="551" y1="195" x2="591" y2="165" stroke="var(--dqn)" stroke-width=".9" opacity=".35"/>
+<line x1="551" y1="195" x2="591" y2="185" stroke="var(--dqn)" stroke-width=".9" opacity=".35"/>
+
+<!-- output nodes -->
+<circle cx="598" cy="165" r="8" fill="var(--dqn)" opacity="1"/>
+<circle cx="598" cy="185" r="8" fill="var(--dqn)" opacity="1"/>
+
+<!-- layer labels -->
+<text x="488" y="228" text-anchor="middle" font-size="8" fill="var(--sub)" font-family="ui-monospace,monospace">input</text>
+<text x="543" y="228" text-anchor="middle" font-size="8" fill="var(--sub)" font-family="ui-monospace,monospace">hidden</text>
+<text x="598" y="228" text-anchor="middle" font-size="8" fill="var(--sub)" font-family="ui-monospace,monospace">Q(s,·)</text>
+
+<!-- Replay Buffer (right side) -->
+<rect x="648" y="104" width="80" height="30" rx="4" fill="var(--dqn-fill)" stroke="var(--dqn)" stroke-width="1" stroke-dasharray="3,2"/>
+<text x="688" y="118" text-anchor="middle" font-size="9" font-weight="600" fill="var(--dqn)" font-family="ui-monospace,monospace">Replay Buffer</text>
+<text x="688" y="129" text-anchor="middle" font-size="9" fill="var(--dqn)" font-family="ui-monospace,monospace">random mini-batch</text>
+<line x1="648" y1="119" x2="635" y2="150" stroke="var(--dqn)" stroke-width="1" stroke-dasharray="3,2" marker-end="url(#adqn)"/>
+
+<!-- Target Network (right side) -->
+<rect x="648" y="172" width="80" height="30" rx="4" fill="var(--dqn-fill)" stroke="var(--dqn)" stroke-width="1" stroke-dasharray="3,2"/>
+<text x="688" y="186" text-anchor="middle" font-size="9" font-weight="600" fill="var(--dqn)" font-family="ui-monospace,monospace">Target Network</text>
+<text x="688" y="197" text-anchor="middle" font-size="9" fill="var(--dqn)" font-family="ui-monospace,monospace">frozen weights</text>
+<line x1="648" y1="187" x2="635" y2="178" stroke="var(--dqn)" stroke-width="1" stroke-dasharray="3,2" marker-end="url(#adqn)"/>
+
+<!-- Gradient update loop (left side of network) -->
+<path d="M455,238 C426,238 426,98 455,98" fill="none" stroke="var(--dqn)" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#adqn)"/>
+<text x="432" y="172" text-anchor="middle" font-size="9" fill="var(--dqn)" font-family="ui-monospace,monospace" transform="rotate(-90,432,172)">gradient update</text>
+
+<!-- ↓ -->
+<line x1="545" y1="238" x2="545" y2="254" stroke="var(--sub)" stroke-width="1.5" marker-end="url(#ag)"/>
+
+<!-- argmax -->
+<rect x="495" y="254" width="100" height="30" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="1.5"/>
+<text x="545" y="273" text-anchor="middle" font-size="11" fill="var(--txt)" font-family="ui-monospace,monospace">argmax</text>
+
+<!-- ↓ -->
+<line x1="545" y1="284" x2="545" y2="300" stroke="var(--sub)" stroke-width="1.5" marker-end="url(#ag)"/>
+
+<!-- Action -->
+<rect x="475" y="300" width="140" height="34" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="1.5"/>
+<text x="545" y="322" text-anchor="middle" font-size="12" fill="var(--txt)" font-family="ui-monospace,monospace">action  a</text>
+
+<!-- Bottom note -->
+<text x="545" y="384" text-anchor="middle" font-size="10" fill="var(--sub)" font-family="ui-monospace,monospace">gradient step on every batch</text>
+</svg>
