@@ -1,0 +1,123 @@
+<svg viewBox="0 0 740 480" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:740px;display:block;margin:2rem auto;">
+<defs>
+  <marker id="ag"  markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto"><path d="M0,0 L0,7 L7,3.5 z" fill="#7B82A0"/></marker>
+  <marker id="adqn"  markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto"><path d="M0,0 L0,7 L7,3.5 z" fill="#E8503A"/></marker>
+  <marker id="addqn" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto"><path d="M0,0 L0,7 L7,3.5 z" fill="#4B6BFB"/></marker>
+</defs>
+<style>
+  :root {
+    --bg:       #F7F8FC;
+    --surface:  #FFFFFF;
+    --border:   #CDD2E4;
+    --txt:      #1B1D2B;
+    --sub:      #7B82A0;
+    --dqn:      #E8503A;
+    --dqn-fill: #FEF0EE;
+    --ddqn:     #4B6BFB;
+    --ddqn-fill:#EEF1FF;
+    --div:      #CDD2E4;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg:       #1B1D2B;
+      --surface:  #252838;
+      --border:   #383C54;
+      --txt:      #E6E8F4;
+      --sub:      #8B92B0;
+      --dqn-fill: #2B1E1C;
+      --ddqn-fill:#1D2245;
+      --div:      #383C54;
+    }
+  }
+</style>
+
+<!-- Background -->
+<rect width="740" height="480" fill="var(--bg)" rx="10"/>
+
+<!-- Divider -->
+<line x1="370" y1="16" x2="370" y2="464" stroke="var(--div)" stroke-width="1" stroke-dasharray="5,4"/>
+
+<!-- ══════════════════ DQN (left) ══════════════════ -->
+<text x="185" y="36" text-anchor="middle" font-size="12" font-weight="700" fill="var(--dqn)" font-family="ui-monospace,monospace" letter-spacing=".08em">DQN</text>
+
+<!-- s_{t+1} -->
+<rect x="105" y="50" width="160" height="32" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="1.5"/>
+<text x="185" y="71" text-anchor="middle" font-size="12" fill="var(--txt)" font-family="ui-monospace,monospace">next state  s′</text>
+
+<line x1="185" y1="82" x2="185" y2="98" stroke="var(--sub)" stroke-width="1.5" marker-end="url(#ag)"/>
+
+<!-- Target network box -->
+<rect x="75" y="98" width="220" height="52" rx="6" fill="var(--dqn-fill)" stroke="var(--dqn)" stroke-width="1.5"/>
+<text x="185" y="118" text-anchor="middle" font-size="11" font-weight="600" fill="var(--dqn)" font-family="ui-monospace,monospace">Target Network  θ⁻</text>
+<text x="185" y="138" text-anchor="middle" font-size="10" fill="var(--dqn)" font-family="ui-monospace,monospace">Q(s′, a₁)=0.9 · Q(s′, a₂)=2.1 · Q(s′, a₃)=0.4</text>
+
+<line x1="185" y1="150" x2="185" y2="166" stroke="var(--sub)" stroke-width="1.5" marker-end="url(#ag)"/>
+
+<!-- argmax label -->
+<rect x="125" y="166" width="120" height="30" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="1.5"/>
+<text x="185" y="185" text-anchor="middle" font-size="11" fill="var(--txt)" font-family="ui-monospace,monospace">argmax → a₂</text>
+
+<line x1="185" y1="196" x2="185" y2="212" stroke="var(--sub)" stroke-width="1.5" marker-end="url(#ag)"/>
+
+<!-- Same network evaluates — arrow loops right back -->
+<rect x="75" y="212" width="220" height="52" rx="6" fill="var(--dqn-fill)" stroke="var(--dqn)" stroke-width="1.5"/>
+<text x="185" y="232" text-anchor="middle" font-size="11" font-weight="600" fill="var(--dqn)" font-family="ui-monospace,monospace">Target Network  θ⁻  (same)</text>
+<text x="185" y="252" text-anchor="middle" font-size="10" fill="var(--dqn)" font-family="ui-monospace,monospace">Q(s′, a₂; θ⁻) = 2.1  ← used as target</text>
+
+<!-- bias annotation -->
+<rect x="88" y="276" width="195" height="26" rx="4" fill="var(--dqn)" opacity=".12"/>
+<text x="185" y="293" text-anchor="middle" font-size="10" fill="var(--dqn)" font-weight="600" font-family="ui-monospace,monospace">⚠ same network selected AND scored</text>
+
+<line x1="185" y1="302" x2="185" y2="318" stroke="var(--sub)" stroke-width="1.5" marker-end="url(#ag)"/>
+
+<!-- target -->
+<rect x="85" y="318" width="200" height="32" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="1.5"/>
+<text x="185" y="339" text-anchor="middle" font-size="12" fill="var(--txt)" font-family="ui-monospace,monospace">y = r + γ · 2.1</text>
+
+<!-- bottom note -->
+<text x="185" y="388" text-anchor="middle" font-size="10" fill="var(--sub)" font-family="ui-monospace,monospace">noisy max inflates the target</text>
+
+
+<!-- ══════════════════ DDQN (right) ══════════════════ -->
+<text x="555" y="36" text-anchor="middle" font-size="12" font-weight="700" fill="var(--ddqn)" font-family="ui-monospace,monospace" letter-spacing=".08em">DOUBLE DQN</text>
+
+<!-- s_{t+1} -->
+<rect x="475" y="50" width="160" height="32" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="1.5"/>
+<text x="555" y="71" text-anchor="middle" font-size="12" fill="var(--txt)" font-family="ui-monospace,monospace">next state  s′</text>
+
+<line x1="555" y1="82" x2="555" y2="98" stroke="var(--sub)" stroke-width="1.5" marker-end="url(#ag)"/>
+
+<!-- Main network selects -->
+<rect x="445" y="98" width="220" height="52" rx="6" fill="var(--ddqn-fill)" stroke="var(--ddqn)" stroke-width="1.5"/>
+<text x="555" y="118" text-anchor="middle" font-size="11" font-weight="600" fill="var(--ddqn)" font-family="ui-monospace,monospace">Main Network  θ  (selects)</text>
+<text x="555" y="138" text-anchor="middle" font-size="10" fill="var(--ddqn)" font-family="ui-monospace,monospace">Q(s′, a₁)=1.1 · Q(s′, a₂)=1.8 · Q(s′, a₃)=0.6</text>
+
+<line x1="555" y1="150" x2="555" y2="166" stroke="var(--sub)" stroke-width="1.5" marker-end="url(#ag)"/>
+
+<!-- argmax label -->
+<rect x="495" y="166" width="120" height="30" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="1.5"/>
+<text x="555" y="185" text-anchor="middle" font-size="11" fill="var(--txt)" font-family="ui-monospace,monospace">argmax → a₂</text>
+
+<line x1="555" y1="196" x2="555" y2="212" stroke="var(--sub)" stroke-width="1.5" marker-end="url(#ag)"/>
+
+<!-- Target network evaluates -->
+<rect x="445" y="212" width="220" height="52" rx="6" fill="var(--ddqn-fill)" stroke="var(--ddqn)" stroke-width="1.5"/>
+<text x="555" y="232" text-anchor="middle" font-size="11" font-weight="600" fill="var(--ddqn)" font-family="ui-monospace,monospace">Target Network  θ⁻  (evaluates)</text>
+<text x="555" y="252" text-anchor="middle" font-size="10" fill="var(--ddqn)" font-family="ui-monospace,monospace">Q(s′, a₂; θ⁻) = 1.3  ← used as target</text>
+
+<!-- bias suppressed -->
+<rect x="458" y="276" width="195" height="26" rx="4" fill="var(--ddqn)" opacity=".12"/>
+<text x="555" y="293" text-anchor="middle" font-size="10" fill="var(--ddqn)" font-weight="600" font-family="ui-monospace,monospace">✓ independent networks, errors don't align</text>
+
+<line x1="555" y1="302" x2="555" y2="318" stroke="var(--sub)" stroke-width="1.5" marker-end="url(#ag)"/>
+
+<!-- target -->
+<rect x="455" y="318" width="200" height="32" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="1.5"/>
+<text x="555" y="339" text-anchor="middle" font-size="12" fill="var(--txt)" font-family="ui-monospace,monospace">y = r + γ · 1.3</text>
+
+<!-- bottom note -->
+<text x="555" y="388" text-anchor="middle" font-size="10" fill="var(--sub)" font-family="ui-monospace,monospace">calmer target, more stable training</text>
+
+<!-- legend / caption -->
+<text x="370" y="430" text-anchor="middle" font-size="10" fill="var(--sub)" font-family="ui-monospace,monospace">Both select a₂, but the evaluation comes from a different network — so noise doesn't compound.</text>
+</svg>
