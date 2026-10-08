@@ -18,6 +18,54 @@ Mathityahu calls this the oldest mistake in the book. CatBoost is, more or less,
 
 ---
 
+# One Tree
+
+Before anyone can peek at anything, a quick pass through the machinery.
+
+Say Devorah wants to predict how many challahs a Shabbat table will finish, given the number of guests. A **decision tree** answers with a short list of yes-or-no questions. More than 9 guests? Then more than 5? Each answer sends you down a branch, and at the bottom, in a **leaf**, sits a number: the average challah count of all the past dinners that ended up there.
+
+The tree picks its questions greedily. It tries every possible threshold, keeps the one that makes the leaves most uniform, and repeats on each side until it runs out of depth. Nothing needs scaling, nothing needs a linear relationship, and a column of weird units is no problem. That is why trees are so popular on messy tabular data.
+
+One tree is also fragile. Too shallow and it misses the pattern, too deep and it memorises the dinners it has seen.
+
+---
+
+# Many Small Trees
+
+**Gradient boosting** takes a different route. Instead of one good tree, build many weak ones, each correcting the last.
+
+Start with the dullest prediction possible: the average, for every table. It will be wrong everywhere, and *how* wrong, row by row, is information. Those errors are the residuals. Now fit a small tree to predict the residuals, not the challahs, and add a fraction of its answer to the prediction. Recompute the residuals, which are smaller now. Fit another tree to those. Repeat.
+
+I wrote it out by hand on 60 invented dinners, where appetite climbs with the guest count and then flattens out:
+
+```python
+from sklearn.tree import DecisionTreeRegressor
+
+pred = np.full(len(y), y.mean())           # round 0: everyone gets the average
+learning_rate = 0.3
+
+for step in range(50):
+    residual = y - pred                    # what we still get wrong
+    tree = DecisionTreeRegressor(max_depth=2).fit(X, residual)
+    pred += learning_rate * tree.predict(X)
+```
+
+The mean squared error after each round:
+
+| round | 0 | 1 | 3 | 5 | 10 | 50 |
+|---|---|---|---|---|---|---|
+| MSE | 11.76 | 6.25 | 2.04 | 0.86 | 0.39 | 0.09 |
+
+The first tree, with a depth of just 2, already cuts the error roughly in half. Notice the last column too. I added noise with a variance of 0.64, so an error of 0.09 means the model has stopped learning the pattern and started memorising the noise. Boosting will do that if you let it run. Keep that in mind.
+
+Why "gradient"? Residuals are the right thing to fit when the loss is squared error. For other losses, such as the logloss of a yes-or-no question, you fit the *gradient* of the loss at the current predictions, which is the same idea generalised: nudge each prediction in the direction that reduces the loss fastest. The learning rate keeps each nudge small enough to be safe.
+
+This recipe is what XGBoost and LightGBM do, and CatBoost does it too. So what is CatBoost for?
+
+Look at the recipe again. There are two places where a row's own label can slip into something used to predict it. One is the step where you turn a column of categories into numbers, before any tree is built. The other is the residuals, which are computed by a model that has already trained on those very rows. Uncle Shimon's mistake lives in both. CatBoost is built around closing both.
+
+---
+
 # The Problem With Categories
 
 A tree needs numbers, and a column like `customer_id` or `zip_code` or `which_shul` is not a number. The standard options are not great. One-hot encoding a column with 1,500 distinct values gives you 1,500 new columns, most of them nearly empty. Label encoding invents an order that isn't there.
