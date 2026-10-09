@@ -20,7 +20,7 @@ Mathityahu calls this the oldest mistake in the book. CatBoost is, more or less,
 
 # One Tree
 
-Before anyone can peek at anything, a quick pass through the machinery.
+Before anyone can peek at anything, a quick pass through the machinery. (There is a longer version, with random forests and AdaBoost for comparison, in [the boosting post](/machine-learning/2026-09-28-boosting-post/).)
 
 Say Devorah wants to predict how many challahs a Shabbat table will finish, given the number of guests. A **decision tree** answers with a short list of yes-or-no questions. More than 9 guests? Then more than 5? Each answer sends you down a branch, and at the bottom, in a **leaf**, sits a number: the average challah count of all the past dinners that ended up there.
 
@@ -62,7 +62,7 @@ Why "gradient"? Because the residual was a special case.
 
 With squared error, the direction that reduces the loss fastest, the negative gradient, is exactly the residual: what the truth says, minus what the model says. So "fit a tree to the residuals" was gradient descent all along. It only looked like common sense.
 
-Change the question and the residual stops being the right thing. Suppose Devorah asks a yes-or-no question instead: will this client come back? The model now keeps a raw score, and the probability is that score squeezed through a sigmoid. The negative gradient of the logloss turns out to be the label minus the predicted *probability*. For a client who did come back, that looks like this:
+Change the question and the residual stops being the right thing. Suppose Devorah asks a yes-or-no question instead: will this client come back? The model now keeps a raw score, and the probability is that score squeezed through a sigmoid. It has to be: the score is a running sum of tree outputs and can reach 7 or minus 12, while a probability must stay between 0 and 1, and the sigmoid maps any number into that range. The raw score is also the log-odds, so each tree is saying "shift the odds by this much". The negative gradient of the logloss turns out to be the label minus the predicted *probability*. For a client who did come back, that looks like this:
 
 | what the model believes | predicted probability | target for the next tree |
 |---|---|---|
@@ -76,7 +76,7 @@ The picture to hold on to is ordinary gradient descent, except that what you adj
 
 (CatBoost goes a little further than the gradient when it sets the values in the leaves. For classification, the docs say the default is Newton steps, which use the curvature of the loss as well. For plain regression it is a gradient step.)
 
-This recipe is what XGBoost and LightGBM do, and CatBoost does it too. So what is CatBoost for?
+This recipe is what XGBoost and LightGBM do, and CatBoost does it too. A random forest does not: each tree there is a complete model trained on its own, and the forest simply averages their answers, so there is no running sum, no loss to descend and nothing to squash. So what is CatBoost for?
 
 Look at the recipe again. There are two places where a row's own label can slip into something used to predict it. One is the step where you turn a column of categories into numbers, before any tree is built. The other is the residuals, which are computed by a model that has already trained on those very rows. Uncle Shimon's mistake lives in both. CatBoost is built around closing both.
 
