@@ -58,7 +58,23 @@ The mean squared error after each round:
 
 The first tree, with a depth of just 2, already cuts the error roughly in half. Notice the last column too. I added noise with a variance of 0.64, so an error of 0.09 means the model has stopped learning the pattern and started memorising the noise. Boosting will do that if you let it run. Keep that in mind.
 
-Why "gradient"? Residuals are the right thing to fit when the loss is squared error. For other losses, such as the logloss of a yes-or-no question, you fit the *gradient* of the loss at the current predictions, which is the same idea generalised: nudge each prediction in the direction that reduces the loss fastest. The learning rate keeps each nudge small enough to be safe.
+Why "gradient"? Because the residual was a special case.
+
+With squared error, the direction that reduces the loss fastest, the negative gradient, is exactly the residual: what the truth says, minus what the model says. So "fit a tree to the residuals" was gradient descent all along. It only looked like common sense.
+
+Change the question and the residual stops being the right thing. Suppose Devorah asks a yes-or-no question instead: will this client come back? The model now keeps a raw score, and the probability is that score squeezed through a sigmoid. The negative gradient of the logloss turns out to be the label minus the predicted *probability*. For a client who did come back, that looks like this:
+
+| what the model believes | predicted probability | target for the next tree |
+|---|---|---|
+| no idea | 0.50 | 0.50 |
+| sure they won't come back | 0.12 | 0.88 |
+| sure they will | 0.95 | 0.05 |
+
+A row the model has badly wrong gets a large push, and a row it already has right is left nearly alone. Same instinct as before, with the loss doing the arithmetic.
+
+The picture to hold on to is ordinary gradient descent, except that what you adjust is the prediction function itself, one small tree at a time. The **learning rate** is the step size. Each tree only points roughly downhill, so you take a fraction of its answer, because a full step overshoots and starts fitting noise. And because only the line that computes the target changes, you can swap the loss without touching anything else.
+
+(CatBoost goes a little further than the gradient when it sets the values in the leaves. For classification, the docs say the default is Newton steps, which use the curvature of the loss as well. For plain regression it is a gradient step.)
 
 This recipe is what XGBoost and LightGBM do, and CatBoost does it too. So what is CatBoost for?
 
